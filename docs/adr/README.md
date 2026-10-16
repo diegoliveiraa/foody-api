@@ -82,3 +82,4 @@ needs migration, rework or monitoring.
 | [ADR-0005](./0005-one-http-and-data-contract-for-every-endpoint.md) | 2026-10-16 | One HTTP and data contract for every endpoint | Accepted — soft delete superseded by ADR-0006 |
 | [ADR-0006](./0006-disable-with-disabledat-and-delete-for-real.md) | 2026-10-16 | Disable with `disabledAt`; delete for real; soft delete only by exception | Accepted |
 | [ADR-0007](./0007-seed-local-data-with-factories-and-seeders-on-the-test-classpath.md) | 2026-10-16 | Seed local data with factories and seeders on the test classpath | Accepted |
+| [ADR-0008](./0008-publish-the-openapi-contract-from-a-test.md) | 2026-10-16 | Publish the OpenAPI contract from a test, keeping springdoc out of production | Accepted |

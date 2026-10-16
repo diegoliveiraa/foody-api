@@ -2,13 +2,14 @@ package com.foody.api;
 
 import com.foody.seed.SeedConfiguration;
 import com.foody.seed.SeedConstants;
+import com.foody.testsupport.openapi.OpenApiConfiguration;
 import org.springframework.boot.SpringApplication;
 
 public class TestFoodyApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.from(FoodyApiApplication::main)
-				.with(SeedConfiguration.class)
+				.with(SeedConfiguration.class, OpenApiConfiguration.class)
 				.withAdditionalProfiles(SeedConstants.PROFILE)
 				.run(args);
 	}

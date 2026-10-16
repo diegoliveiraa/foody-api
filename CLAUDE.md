@@ -266,6 +266,8 @@ Every endpoint follows ADR-0005:
   `PageResponse.of(page)`. Page sizes are 10, 25, 50 or 100 (`PaginationConstants`); never return
   an unpaginated list of a table that grows.
 - **Instants go out as ISO-8601 UTC, ids as UUID strings, money as decimal numbers.**
+- **`docs/openapi.json` is the published contract** (ADR-0008): `OpenApiContractTest` rewrites it
+  on every test run. Commit it with the change that alters it; never edit it by hand.
 
 ### R20 — Test data comes from factories; local data from seeders
 
@@ -291,7 +293,8 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
 - **Local data:** `./mvnw spring-boot:test-run` does the same and runs the seeders (R20); add
   `-Dspring-boot.run.arguments=--foody.seed.scale=LARGE` for volume. Seeders skip tables that
   already have data — for a fresh start, `docker compose down` and remove the
-  `foody-local_postgres-data` volume.
+  `foody-local_postgres-data` volume. Swagger UI is there too, at
+  `http://localhost:8080/swagger-ui.html` — and only there: springdoc is a test dependency.
 - **Image:** `docker build -t foody-api .` (ADR-0004). **Deploy:**
   `docker compose -f compose.deploy.yaml up -d`, with the `.env` on the host. Nothing secret
   lives in the compose files or the image.
