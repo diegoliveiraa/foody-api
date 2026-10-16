@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.within;
 import com.foody.api.TestcontainersConfiguration;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,29 +72,14 @@ class BaseEntityTest {
 	}
 
 	@Test
-	void keepsTheRowAndStampsDeletedAtWhenDeleted() {
+	void deletesTheRowForGood() {
 		SampleEntity saved = repository.saveAndFlush(new SampleEntity("to delete"));
 
 		repository.delete(saved);
 		repository.flush();
 
-		OffsetDateTime deletedAt = jdbc.queryForObject(
-				"select deleted_at from sample_entity where id = ?", OffsetDateTime.class, saved.getId());
-		assertThat(deletedAt).isNotNull();
-		assertThat(repository.findById(saved.getId())).isEmpty();
-	}
-
-	@Test
-	void leavesDeletedRowsOutOfEveryQuery() {
-		SampleEntity kept = repository.saveAndFlush(new SampleEntity("kept"));
-		SampleEntity deleted = repository.saveAndFlush(new SampleEntity("deleted"));
-
-		repository.delete(deleted);
-		repository.flush();
-		entityManager.clear();
-
-		assertThat(repository.findAll()).extracting(SampleEntity::getId).containsExactly(kept.getId());
-		assertThat(repository.count()).isEqualTo(1);
+		Long rows = jdbc.queryForObject("select count(*) from sample_entity where id = ?", Long.class, saved.getId());
+		assertThat(rows).isZero();
 	}
 
 }

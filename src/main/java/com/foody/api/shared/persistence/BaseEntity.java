@@ -9,14 +9,11 @@ import java.util.UUID;
 import lombok.Getter;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 @Getter
 @MappedSuperclass
-@SoftDelete(strategy = SoftDeleteType.TIMESTAMP, columnName = PersistenceConstants.DELETED_AT_COLUMN)
 public abstract class BaseEntity {
 
 	@Id

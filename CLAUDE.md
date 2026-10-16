@@ -229,12 +229,17 @@ PostgreSQL through Spring Data JPA, schema through Flyway (ADR-0003), data conve
 ADR-0005:
 
 - **Every entity extends `BaseEntity`** (`com.foody.api.shared.persistence`): UUID v7 `id`,
-  `createdAt`, `updatedAt`, `version` and soft delete. Its table has `id uuid primary key`,
-  `created_at timestamptz not null`, `updated_at timestamptz not null`, `version bigint not null`
-  and `deleted_at timestamptz`.
-- **Soft delete is the only delete:** `repository.delete()` stamps `deleted_at`, and JPA queries
-  never see deleted rows. A unique constraint is therefore partial —
-  `create unique index … where deleted_at is null`.
+  `createdAt`, `updatedAt` and `version`. Its table has `id uuid primary key`,
+  `created_at timestamptz not null`, `updated_at timestamptz not null` and
+  `version bigint not null`.
+- **Switched off, not deleted** (ADR-0006): an entity that is disabled and enabled again
+  (product, customer, supplier) extends `ActivatableEntity` — `disabled_at timestamptz`, `null`
+  while active. Every query on it decides explicitly whether it keeps only active rows; a
+  customer-facing one always does.
+- **Delete removes the row.** Deleting something still referenced is refused in the service with
+  a `ConflictException` that points to disabling. Soft delete is the exception, per entity:
+  `@SoftDelete(strategy = TIMESTAMP, columnName = PersistenceConstants.DELETED_AT_COLUMN)` plus
+  partial unique indexes (`… where deleted_at is null`).
 - **Instants are `Instant` / `timestamptz`; money is `BigDecimal` / `numeric(12,2)`** — never
   `double`, `float`, `LocalDateTime` or `timestamp` without time zone.
 
