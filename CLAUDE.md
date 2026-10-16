@@ -123,7 +123,11 @@ catalog text, never baked into a literal:
 throw new IllegalStateException("Restaurante não encontrado: " + id);
 
 // good
-throw new RestaurantNotFoundException(Messages.RESTAURANT_NOT_FOUND.text() + ": " + id);
+public class RestaurantNotFoundException extends NotFoundException {
+    public RestaurantNotFoundException(UUID id) {
+        super(Messages.RESTAURANT_NOT_FOUND, id.toString());
+    }
+}
 ```
 
 Before creating a key, `grep` the catalog — the one you need may already exist.
@@ -158,14 +162,16 @@ path **and** an error/edge path.
 
 ### R13 — Errors end in the global handler
 
-Exceptions become HTTP responses in **one** `@RestControllerAdvice`
-(`com.foody.api.shared.exception.GlobalExceptionHandler`, created with the first one). A `catch`
-exists only to translate into a domain exception **keeping the cause** — never swallow the
-error, never an empty `catch`, never `catch (Exception e) { log; return null; }`.
+Exceptions become HTTP responses in **one** `@RestControllerAdvice`,
+`com.foody.api.shared.exception.GlobalExceptionHandler`, as Problem Details (R19). A domain
+exception extends one of `InvalidRequestException` (400), `NotFoundException` (404),
+`ConflictException` (409) or `BusinessRuleException` (422) — never a new `@ExceptionHandler` per
+exception. A `catch` exists only to translate into a domain exception **keeping the cause** —
+never swallow the error, never an empty `catch`, never `catch (Exception e) { log; return null; }`.
 
 ```java
 } catch (DataAccessException exception) {
-    throw new OrderPersistenceException(Messages.ORDER_SAVE_FAILED.text(), exception);
+    throw new OrderPersistenceException(exception);
 }
 ```
 
@@ -219,7 +225,18 @@ Authentication follows ADR-0002:
 
 ### R18 — Persistence
 
-PostgreSQL through Spring Data JPA, schema through Flyway (ADR-0003):
+PostgreSQL through Spring Data JPA, schema through Flyway (ADR-0003), data conventions in
+ADR-0005:
+
+- **Every entity extends `BaseEntity`** (`com.foody.api.shared.persistence`): UUID v7 `id`,
+  `createdAt`, `updatedAt`, `version` and soft delete. Its table has `id uuid primary key`,
+  `created_at timestamptz not null`, `updated_at timestamptz not null`, `version bigint not null`
+  and `deleted_at timestamptz`.
+- **Soft delete is the only delete:** `repository.delete()` stamps `deleted_at`, and JPA queries
+  never see deleted rows. A unique constraint is therefore partial —
+  `create unique index … where deleted_at is null`.
+- **Instants are `Instant` / `timestamptz`; money is `BigDecimal` / `numeric(12,2)`** — never
+  `double`, `float`, `LocalDateTime` or `timestamp` without time zone.
 
 - **The schema changes only through a new migration**,
   `src/main/resources/db/migration/V<n>__<description>.sql`. An applied migration is never
@@ -232,6 +249,18 @@ PostgreSQL through Spring Data JPA, schema through Flyway (ADR-0003):
   `@EntityGraph`), never by touching a lazy association inside a loop (N+1).
 - **Database tests run against PostgreSQL in Testcontainers** — no H2, no mocked repository
   standing in for a query under test.
+
+### R19 — One HTTP contract
+
+Every endpoint follows ADR-0005:
+
+- **Errors are Problem Details** with a `code` (the `Messages` key) and, on validation,
+  `errors[]`. A controller never builds an error body — it throws (R13).
+- **A list endpoint is paginated on the server:** it takes a `Pageable`, passes it through
+  `SortGuard.requireAllowed(pageable, <the endpoint's sortable properties>)` and returns
+  `PageResponse.of(page)`. Page sizes are 10, 25, 50 or 100 (`PaginationConstants`); never return
+  an unpaginated list of a table that grows.
+- **Instants go out as ISO-8601 UTC, ids as UUID strings, money as decimal numbers.**
 
 ## Environment
 
