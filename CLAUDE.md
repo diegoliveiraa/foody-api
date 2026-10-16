@@ -202,6 +202,21 @@ No `var` — local variables are declared with their type. Inference is not a re
 
 Don't duplicate packages with the same role inside a domain (`dto` **or** `dtos`, not both).
 
+### R17 — Authentication and secrets
+
+Authentication follows ADR-0002:
+
+- Every endpoint requires a valid access token. The public ones — `/auth/login`, `/auth/refresh`,
+  `/auth/logout` — are listed in one place, the security configuration; no `permitAll` anywhere
+  else.
+- Tokens, passwords, password hashes and the `Authorization` header never reach a log, an
+  exception message or a response body — except the access token that `/auth/login` and
+  `/auth/refresh` return.
+- Refresh tokens are stored only as hashes. Passwords go through Spring Security's
+  `PasswordEncoder`, never a hand-rolled hash.
+- Signing keys and secrets come from configuration outside the repository — nothing secret is
+  committed, not even for local use.
+
 ## Before handing off
 
 `./mvnw verify` — compiles, runs the tests and must end in `BUILD SUCCESS`.
@@ -213,6 +228,7 @@ every hit before handing off:
   `throw`s need a look at the next line too).
 - `grep -nE 'System\.(out|err)|printStackTrace'` → R10.
 - `grep -nwE 'var'` → R15.
+- `grep -niE 'log\.\w+\(.*(token|password|authorization)'` → R17.
 - a `private static final` constant or a generic `private static` helper at the top of a
   service/controller → R3 or R4.
 - the same literal or the same set of values repeated in two files → R3 (one enum/constant,

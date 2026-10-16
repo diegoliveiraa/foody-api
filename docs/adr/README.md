@@ -76,3 +76,4 @@ needs migration, rework or monitoring.
 | ID | Date | Decision | Status |
 |---|---|---|---|
 | [ADR-0001](./0001-navigation-and-permissions-are-served-by-get-me.md) | 2026-10-16 | Navigation and permissions are served by GET /me | Accepted |
+| [ADR-0002](./0002-authenticate-with-short-lived-jwts-and-server-side-refresh-tokens.md) | 2026-10-16 | Authenticate with short-lived JWTs and server-side refresh tokens | Accepted |
