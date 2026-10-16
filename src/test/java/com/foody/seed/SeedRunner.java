@@ -12,7 +12,9 @@ import org.springframework.transaction.support.TransactionOperations;
 public class SeedRunner implements ApplicationRunner {
 
 	private final List<Seeder> seeders;
+
 	private final SeedProperties properties;
+
 	private final TransactionOperations transactions;
 
 	public SeedRunner(List<Seeder> seeders, SeedProperties properties, TransactionOperations transactions) {

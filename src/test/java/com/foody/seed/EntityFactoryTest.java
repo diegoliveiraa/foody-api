@@ -61,8 +61,10 @@ class EntityFactoryTest {
 
 		List<SampleActivatableEntity> created = factory.createMany(count);
 
-		assertThat(created).hasSize(count).extracting(SampleActivatableEntity::getId).doesNotContainNull()
-				.doesNotHaveDuplicates();
+		assertThat(created).hasSize(count)
+			.extracting(SampleActivatableEntity::getId)
+			.doesNotContainNull()
+			.doesNotHaveDuplicates();
 		assertThat(repository.count()).isEqualTo(count);
 	}
 

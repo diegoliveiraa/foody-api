@@ -28,8 +28,9 @@ class OpenApiContractTest {
 	@Test
 	void publishesTheApiContractToDocsOpenapiJson() throws IOException {
 		MvcTestResult result = mvc.get().uri(OpenApiConstants.DOCS_PATH).exchange();
-		String contract = result.getResponse().getContentAsString(StandardCharsets.UTF_8)
-				.replace(OpenApiConstants.WINDOWS_LINE_BREAK, OpenApiConstants.LINE_BREAK);
+		String contract = result.getResponse()
+			.getContentAsString(StandardCharsets.UTF_8)
+			.replace(OpenApiConstants.WINDOWS_LINE_BREAK, OpenApiConstants.LINE_BREAK);
 		Files.writeString(OpenApiConstants.CONTRACT_FILE, contract);
 
 		assertThat(result).hasStatus(HttpStatus.OK);

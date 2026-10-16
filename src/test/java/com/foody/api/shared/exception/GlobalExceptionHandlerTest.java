@@ -26,21 +26,29 @@ class GlobalExceptionHandlerTest {
 	void answersAnInvalidBodyWith400ListingEveryInvalidField() {
 		String body = "{\"name\":\"\",\"quantity\":0}";
 
-		MvcTestResult result = mvc.post().uri(ProbeConstants.BASE_PATH + "/items")
-				.contentType(MediaType.APPLICATION_JSON).content(body).exchange();
+		MvcTestResult result = mvc.post()
+			.uri(ProbeConstants.BASE_PATH + "/items")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(body)
+			.exchange();
 
 		assertThat(result).hasStatus(HttpStatus.BAD_REQUEST).hasContentType(MediaType.APPLICATION_PROBLEM_JSON);
 		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.VALIDATION_FAILED.name());
-		assertThat(result).bodyJson().extractingPath("$.errors[*].field").asArray()
-				.containsExactlyInAnyOrder("name", "quantity");
+		assertThat(result).bodyJson()
+			.extractingPath("$.errors[*].field")
+			.asArray()
+			.containsExactlyInAnyOrder("name", "quantity");
 	}
 
 	@Test
 	void answersMalformedJsonWith400MalformedRequest() {
 		String body = "{\"name\":";
 
-		MvcTestResult result = mvc.post().uri(ProbeConstants.BASE_PATH + "/items")
-				.contentType(MediaType.APPLICATION_JSON).content(body).exchange();
+		MvcTestResult result = mvc.post()
+			.uri(ProbeConstants.BASE_PATH + "/items")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(body)
+			.exchange();
 
 		assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
 		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.MALFORMED_REQUEST.name());
@@ -55,8 +63,9 @@ class GlobalExceptionHandlerTest {
 
 		assertThat(result).hasStatus(HttpStatus.NOT_FOUND).hasContentType(MediaType.APPLICATION_PROBLEM_JSON);
 		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.RESOURCE_NOT_FOUND.name());
-		assertThat(result).bodyJson().extractingPath("$.detail")
-				.isEqualTo(Messages.RESOURCE_NOT_FOUND.text() + ErrorConstants.DETAIL_SEPARATOR + id);
+		assertThat(result).bodyJson()
+			.extractingPath("$.detail")
+			.isEqualTo(Messages.RESOURCE_NOT_FOUND.text() + ErrorConstants.DETAIL_SEPARATOR + id);
 	}
 
 	@Test

@@ -2,9 +2,7 @@ package com.foody.seed;
 
 public enum SeedScale {
 
-	SMALL(1),
-	MEDIUM(10),
-	LARGE(100);
+	SMALL(1), MEDIUM(10), LARGE(100);
 
 	private final int multiplier;
 

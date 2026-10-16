@@ -35,9 +35,8 @@ class SortGuardTest {
 	void rejectsAPageableSortedByAPropertyOutsideTheAllowlistNamingIt() {
 		Pageable pageable = PageRequest.of(0, 10, Sort.by("name", "passwordHash"));
 
-		assertThatThrownBy(() -> SortGuard.requireAllowed(pageable, ALLOWED))
-				.isInstanceOf(InvalidSortException.class)
-				.hasMessageEndingWith("passwordHash");
+		assertThatThrownBy(() -> SortGuard.requireAllowed(pageable, ALLOWED)).isInstanceOf(InvalidSortException.class)
+			.hasMessageEndingWith("passwordHash");
 	}
 
 }

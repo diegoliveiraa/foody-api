@@ -9,9 +9,9 @@ public class TestFoodyApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.from(FoodyApiApplication::main)
-				.with(SeedConfiguration.class, OpenApiConfiguration.class)
-				.withAdditionalProfiles(SeedConstants.PROFILE)
-				.run(args);
+			.with(SeedConfiguration.class, OpenApiConfiguration.class)
+			.withAdditionalProfiles(SeedConstants.PROFILE)
+			.run(args);
 	}
 
 }

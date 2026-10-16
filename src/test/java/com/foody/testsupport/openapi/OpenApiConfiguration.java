@@ -12,9 +12,8 @@ public class OpenApiConfiguration {
 
 	@Bean
 	OpenAPI foodyOpenApi() {
-		return new OpenAPI()
-				.info(new Info().title(OpenApiConstants.TITLE).version(OpenApiConstants.VERSION))
-				.servers(List.of(new Server().url(OpenApiConstants.SERVER_URL)));
+		return new OpenAPI().info(new Info().title(OpenApiConstants.TITLE).version(OpenApiConstants.VERSION))
+			.servers(List.of(new Server().url(OpenApiConstants.SERVER_URL)));
 	}
 
 }

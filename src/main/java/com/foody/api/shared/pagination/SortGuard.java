@@ -11,10 +11,11 @@ public final class SortGuard {
 	}
 
 	public static Pageable requireAllowed(Pageable pageable, Set<String> allowedProperties) {
-		List<String> rejected = pageable.getSort().stream()
-				.map(Sort.Order::getProperty)
-				.filter(property -> !allowedProperties.contains(property))
-				.toList();
+		List<String> rejected = pageable.getSort()
+			.stream()
+			.map(Sort.Order::getProperty)
+			.filter(property -> !allowedProperties.contains(property))
+			.toList();
 		if (rejected.isEmpty()) {
 			return pageable;
 		}

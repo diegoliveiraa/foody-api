@@ -55,20 +55,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-		List<FieldViolation> violations = exception.getBindingResult().getFieldErrors().stream()
-				.map(error -> new FieldViolation(error.getField(), error.getDefaultMessage()))
-				.toList();
+		List<FieldViolation> violations = exception.getBindingResult()
+			.getFieldErrors()
+			.stream()
+			.map(error -> new FieldViolation(error.getField(), error.getDefaultMessage()))
+			.toList();
 		return handleExceptionInternal(exception, validationProblem(status, violations), headers, status, request);
 	}
 
 	@Override
 	protected ResponseEntity<Object> handleHandlerMethodValidationException(HandlerMethodValidationException exception,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-		List<FieldViolation> violations = exception.getParameterValidationResults().stream()
-				.flatMap(result -> result.getResolvableErrors().stream()
-						.map(error -> new FieldViolation(result.getMethodParameter().getParameterName(),
-								error.getDefaultMessage())))
-				.toList();
+		List<FieldViolation> violations = exception.getParameterValidationResults()
+			.stream()
+			.flatMap(result -> result.getResolvableErrors()
+				.stream()
+				.map(error -> new FieldViolation(result.getMethodParameter().getParameterName(),
+						error.getDefaultMessage())))
+			.toList();
 		return handleExceptionInternal(exception, validationProblem(status, violations), headers, status, request);
 	}
 

@@ -188,17 +188,9 @@ only the files the change touches.
 Not comments, and therefore kept: tool directives that change behaviour (`// @formatter:off`),
 and only where removing them breaks the build. Never add one to dodge a rule (standing rule 4).
 
-Check before handing off — anything printed that is not inside a string literal is a comment to
-remove. `BASE` is the branch the work started from, so files already committed on the branch are
-covered too. Comments at the end of a line print as well; URLs inside strings also print — those
-are not comments.
-
-```bash
-BASE=main
-{ git diff --name-only --diff-filter=d "$BASE"...HEAD; git diff --name-only --diff-filter=d HEAD; \
-  git ls-files --others --exclude-standard; } | sort -u | grep -E '\.java$' \
-  | xargs grep -nE '//|/\*|^\s*\*' | grep -vE '@formatter:'
-```
+Check with `bash scripts/check-comments.sh` (CI runs it too): it reads every Java file in the repo,
+ignores what sits inside string and char literals — a URL is not a comment — and prints each line
+that still carries one.
 
 ### R15 — Always explicit types
 
@@ -304,17 +296,20 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
 
 ## Before handing off
 
-`./mvnw verify` — compiles, runs the tests and must end in `BUILD SUCCESS`. Docker must be
-running: database tests use Testcontainers (R18). Changed a dependency or the `Dockerfile`? Also
-bring up `compose.deploy.yaml` and wait for the API to report healthy — a JDK module that `jdeps`
-cannot see fails only when the image runs (ADR-0004).
+`./mvnw verify` · `bash scripts/check-comments.sh` — the same gates CI runs (ADR-0009). `verify`
+must end in `BUILD SUCCESS`; it checks the format (fix it with `./mvnw spring-javaformat:apply`),
+runs the tests and the architecture rules in `ArchitectureTest` (layers, packages, entities,
+exception handling, standard streams, field injection) and rewrites `docs/openapi.json`. Docker
+must be running: database tests use Testcontainers (R18). Changed a dependency or the `Dockerfile`?
+Also bring up `compose.deploy.yaml` and wait for the API to report healthy — a JDK module that
+`jdeps` cannot see fails only when the image runs (ADR-0004). A rule that blocks you is fixed in the
+code, never by loosening `ArchitectureTest` or the build (standing rule 4).
 
 **Self-review against what reviewers keep flagging** — run over the files you touched and fix
 every hit before handing off:
 
 - `grep -nE 'throw new \w+\(\s*"'` finds a `throw` with a literal message → R7 (multi-line
   `throw`s need a look at the next line too).
-- `grep -nE 'System\.(out|err)|printStackTrace'` → R10.
 - `grep -nwE 'var'` → R15.
 - `grep -niE 'log\.\w+\(.*(token|password|authorization)'` → R17.
 - a `private static final` constant or a generic `private static` helper at the top of a
