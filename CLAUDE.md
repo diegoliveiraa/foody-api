@@ -267,11 +267,31 @@ Every endpoint follows ADR-0005:
   an unpaginated list of a table that grows.
 - **Instants go out as ISO-8601 UTC, ids as UUID strings, money as decimal numbers.**
 
+### R20 — Test data comes from factories; local data from seeders
+
+Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
+
+- **Every entity has a factory:** `<Entity>Factory extends EntityFactory<Entity>`, whose `build()`
+  returns a valid entity filled by Datafaker (pt-BR). Integration tests create their data through
+  factories — `factory.create()`, `factory.create(Entity::disable)`, `factory.createMany(n)` — not
+  by setting fields by hand.
+- **A domain worth seeing locally has a seeder:** `<Domain>Seeder implements Seeder`, idempotent
+  through `alreadySeeded()`, its volume as `scale.of(<base count>)`, with `@Order` when it needs
+  another seeder's data.
+- **Test classes in `com.foody.seed` are named `*Test`** — the seed scan skips them and their fakes.
+- **Test-only entities and migrations go in `com.foody.testsupport` and `db/testsupport`**, never in
+  `com.foody.api` or `db/migration` — those reach the local database through `test-run`.
+- Fixed credentials a seeder creates come from `.env`, never from code.
+
 ## Environment
 
 - **Local database:** copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`.
   `./mvnw spring-boot:run` starts `compose.yaml` (PostgreSQL on `127.0.0.1:5432`) through Spring
   Boot's Docker Compose support — no datasource properties to set.
+- **Local data:** `./mvnw spring-boot:test-run` does the same and runs the seeders (R20); add
+  `-Dspring-boot.run.arguments=--foody.seed.scale=LARGE` for volume. Seeders skip tables that
+  already have data — for a fresh start, `docker compose down` and remove the
+  `foody-local_postgres-data` volume.
 - **Image:** `docker build -t foody-api .` (ADR-0004). **Deploy:**
   `docker compose -f compose.deploy.yaml up -d`, with the `.env` on the host. Nothing secret
   lives in the compose files or the image.

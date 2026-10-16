@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 import com.foody.api.TestcontainersConfiguration;
+import com.foody.testsupport.persistence.SampleActivatableEntity;
+import com.foody.testsupport.persistence.SampleActivatableEntityRepository;
+import com.foody.testsupport.persistence.SamplePersistenceConfiguration;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -13,9 +16,9 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 
-@DataJpaTest
+@DataJpaTest(properties = SamplePersistenceConfiguration.FLYWAY_LOCATIONS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(TestcontainersConfiguration.class)
+@Import({ TestcontainersConfiguration.class, SamplePersistenceConfiguration.class })
 class ActivatableEntityTest {
 
 	@Autowired

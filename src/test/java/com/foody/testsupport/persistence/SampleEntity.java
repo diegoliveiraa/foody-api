@@ -1,5 +1,6 @@
-package com.foody.api.shared.persistence;
+package com.foody.testsupport.persistence;
 
+import com.foody.api.shared.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -9,15 +10,19 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "sample_activatable_entity")
+@Table(name = "sample_entity")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SampleActivatableEntity extends ActivatableEntity {
+public class SampleEntity extends BaseEntity {
 
 	@Column(nullable = false)
 	private String name;
 
-	public SampleActivatableEntity(String name) {
+	public SampleEntity(String name) {
 		this.name = name;
+	}
+
+	public void rename(String newName) {
+		this.name = newName;
 	}
 
 }

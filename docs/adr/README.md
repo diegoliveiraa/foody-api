@@ -81,3 +81,4 @@ needs migration, rework or monitoring.
 | [ADR-0004](./0004-ship-a-jlink-trimmed-jre-on-alpine-with-local-and-deploy-compose.md) | 2026-10-16 | Ship a jlink-trimmed JRE on Alpine, with separate local and deploy compose files | Accepted |
 | [ADR-0005](./0005-one-http-and-data-contract-for-every-endpoint.md) | 2026-10-16 | One HTTP and data contract for every endpoint | Accepted — soft delete superseded by ADR-0006 |
 | [ADR-0006](./0006-disable-with-disabledat-and-delete-for-real.md) | 2026-10-16 | Disable with `disabledAt`; delete for real; soft delete only by exception | Accepted |
+| [ADR-0007](./0007-seed-local-data-with-factories-and-seeders-on-the-test-classpath.md) | 2026-10-16 | Seed local data with factories and seeders on the test classpath | Accepted |

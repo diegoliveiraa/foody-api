@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 import com.foody.api.TestcontainersConfiguration;
+import com.foody.testsupport.persistence.SampleEntity;
+import com.foody.testsupport.persistence.SampleEntityRepository;
+import com.foody.testsupport.persistence.SamplePersistenceConfiguration;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -14,9 +17,9 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-@DataJpaTest
+@DataJpaTest(properties = SamplePersistenceConfiguration.FLYWAY_LOCATIONS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(TestcontainersConfiguration.class)
+@Import({ TestcontainersConfiguration.class, SamplePersistenceConfiguration.class })
 class BaseEntityTest {
 
 	private static final int UUID_VERSION_7 = 7;
