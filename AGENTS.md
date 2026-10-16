@@ -1,7 +1,7 @@
 # AGENTS — foody-api
 
 This repository's rules live in **`CLAUDE.md`**, next to this file. Read it before making any
-change: standing rules, code rules R1–R17, layers and testing.
+change: standing rules, code rules R1–R18, layers and testing.
 
 @CLAUDE.md
 

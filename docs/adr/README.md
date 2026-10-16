@@ -77,3 +77,5 @@ needs migration, rework or monitoring.
 |---|---|---|---|
 | [ADR-0001](./0001-navigation-and-permissions-are-served-by-get-me.md) | 2026-10-16 | Navigation and permissions are served by GET /me | Accepted |
 | [ADR-0002](./0002-authenticate-with-short-lived-jwts-and-server-side-refresh-tokens.md) | 2026-10-16 | Authenticate with short-lived JWTs and server-side refresh tokens | Accepted |
+| [ADR-0003](./0003-persist-in-postgresql-through-jpa-with-flyway-migrations.md) | 2026-10-16 | Persist in PostgreSQL through Spring Data JPA, with Flyway migrations | Accepted |
+| [ADR-0004](./0004-ship-a-jlink-trimmed-jre-on-alpine-with-local-and-deploy-compose.md) | 2026-10-16 | Ship a jlink-trimmed JRE on Alpine, with separate local and deploy compose files | Accepted |

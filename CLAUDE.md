@@ -217,9 +217,40 @@ Authentication follows ADR-0002:
 - Signing keys and secrets come from configuration outside the repository — nothing secret is
   committed, not even for local use.
 
+### R18 — Persistence
+
+PostgreSQL through Spring Data JPA, schema through Flyway (ADR-0003):
+
+- **The schema changes only through a new migration**,
+  `src/main/resources/db/migration/V<n>__<description>.sql`. An applied migration is never
+  edited — the fix is another migration. `ddl-auto` is `validate`, never anything else.
+- **Entities never leave the service.** Controllers receive and return DTO `record`s from the
+  domain's `dto` package (R9).
+- **Transactions are declared on service methods** — `@Transactional`, with `readOnly = true` for
+  reads — never on controllers.
+- **A list that needs a relation loads it in the repository query** (fetch join or
+  `@EntityGraph`), never by touching a lazy association inside a loop (N+1).
+- **Database tests run against PostgreSQL in Testcontainers** — no H2, no mocked repository
+  standing in for a query under test.
+
+## Environment
+
+- **Local database:** copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`.
+  `./mvnw spring-boot:run` starts `compose.yaml` (PostgreSQL on `127.0.0.1:5432`) through Spring
+  Boot's Docker Compose support — no datasource properties to set.
+- **Image:** `docker build -t foody-api .` (ADR-0004). **Deploy:**
+  `docker compose -f compose.deploy.yaml up -d`, with the `.env` on the host. Nothing secret
+  lives in the compose files or the image.
+- **Memory:** the heap is 50% of the container limit. To give the API more memory, raise
+  `API_MEMORY_LIMIT` — never add `-Xmx` or raise the percentage: the other half is non-heap,
+  threads and native memory, and running short of it gets the container killed (ADR-0004).
+
 ## Before handing off
 
-`./mvnw verify` — compiles, runs the tests and must end in `BUILD SUCCESS`.
+`./mvnw verify` — compiles, runs the tests and must end in `BUILD SUCCESS`. Docker must be
+running: database tests use Testcontainers (R18). Changed a dependency or the `Dockerfile`? Also
+bring up `compose.deploy.yaml` and wait for the API to report healthy — a JDK module that `jdeps`
+cannot see fails only when the image runs (ADR-0004).
 
 **Self-review against what reviewers keep flagging** — run over the files you touched and fix
 every hit before handing off:
