@@ -75,3 +75,4 @@ needs migration, rework or monitoring.
 
 | ID | Date | Decision | Status |
 |---|---|---|---|
+| [ADR-0001](./0001-navigation-and-permissions-are-served-by-get-me.md) | 2026-10-16 | Navigation and permissions are served by GET /me | Accepted |
