@@ -1,6 +1,7 @@
 package com.foody.testsupport.openapi;
 
 import java.nio.file.Path;
+import java.util.List;
 
 public final class OpenApiConstants {
 
@@ -11,6 +12,12 @@ public final class OpenApiConstants {
 	public static final String SERVER_URL = "/";
 
 	public static final String DOCS_PATH = "/v3/api-docs";
+
+	public static final List<String> PUBLIC_PATHS = List.of(DOCS_PATH + "/**", "/swagger-ui/**", "/swagger-ui.html");
+
+	public static final String BEARER_SCHEME = "bearer";
+
+	public static final String BEARER_FORMAT = "JWT";
 
 	public static final Path CONTRACT_FILE = Path.of("docs", "openapi.json");
 

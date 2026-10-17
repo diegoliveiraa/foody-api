@@ -167,9 +167,12 @@ path **and** an error/edge path.
 
 Exceptions become HTTP responses in **one** `@RestControllerAdvice`,
 `com.foody.api.shared.exception.GlobalExceptionHandler`, as Problem Details (R19). A domain
-exception extends one of `InvalidRequestException` (400), `NotFoundException` (404),
-`ConflictException` (409) or `BusinessRuleException` (422) — never a new `@ExceptionHandler` per
-exception. A `catch` exists only to translate into a domain exception **keeping the cause** —
+exception extends one of `InvalidRequestException` (400), `UnauthorizedException` (401),
+`NotFoundException` (404), `ConflictException` (409), `BusinessRuleException` (422) or
+`TooManyRequestsException` (429) — never a new `@ExceptionHandler` per exception. A header the
+error needs (`WWW-Authenticate`, `Retry-After`) comes from the base's `headers()`, which the handler
+applies; Spring Security's 401 and 403 reach the same handler (ADR-0014). A `catch` exists only to
+translate into a domain exception **keeping the cause** —
 never swallow the error, never an empty `catch`, never `catch (Exception e) { log; return null; }`.
 
 ```java
@@ -205,14 +208,17 @@ Don't duplicate packages with the same role inside a domain (`dto` **or** `dtos`
 
 ### R17 — Authentication and secrets
 
-Authentication follows ADR-0002:
+Authentication follows ADR-0002 and ADR-0013:
 
-- Every endpoint requires a valid access token. The public ones — `/auth/login`, `/auth/refresh`,
-  `/auth/logout` — are listed in one place, the security configuration; no `permitAll` anywhere
-  else.
+- Every endpoint requires a valid access token. The public ones — `POST /auth/register`,
+  `/auth/login`, `/auth/refresh`, `/auth/logout` and `GET /actuator/health` — are listed in one
+  place, the security configuration; no `permitAll` anywhere else.
+- Every other controller method declares its access with `@RequiresAuthentication`,
+  `@RequiresScreen` or `@RequiresGrant` (ADR-0012); `ArchitectureTest` fails the build otherwise.
+  Grants live in `RoleGrants`, never as a role check in a service.
 - Tokens, passwords, password hashes and the `Authorization` header never reach a log, an
-  exception message or a response body — except the access token that `/auth/login` and
-  `/auth/refresh` return.
+  exception message or a response body — except the access token that `/auth/register`,
+  `/auth/login` and `/auth/refresh` return.
 - Refresh tokens are stored only as hashes. Passwords go through Spring Security's
   `PasswordEncoder`, never a hand-rolled hash.
 - Signing keys and secrets come from configuration outside the repository — nothing secret is
@@ -236,7 +242,8 @@ ADR-0005:
   `@SoftDelete(strategy = TIMESTAMP, columnName = PersistenceConstants.DELETED_AT_COLUMN)` plus
   partial unique indexes (`… where deleted_at is null`).
 - **Instants are `Instant` / `timestamptz`; money is `BigDecimal` / `numeric(12,2)`** — never
-  `double`, `float`, `LocalDateTime` or `timestamp` without time zone.
+  `double`, `float`, `LocalDateTime` or `timestamp` without time zone. The current instant comes
+  from the injected `Clock` (ADR-0016), never `Instant.now()`.
 
 - **The schema changes only through a new migration**,
   `src/main/resources/db/migration/V<n>__<description>.sql`. An applied migration is never
@@ -286,14 +293,22 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
 - **Local database:** copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`.
   `./mvnw spring-boot:run` starts `compose.yaml` (PostgreSQL on `127.0.0.1:5432`) through Spring
   Boot's Docker Compose support — no datasource properties to set.
+- **JWT keys:** run `bash scripts/generate-jwt-keys.sh` once. It writes `.secrets/jwt-private.pem`
+  and `.secrets/jwt-public.pem` (git-ignored) and refuses to overwrite them without `--force`; the
+  API does not start without them (ADR-0015). Tests generate their own pair.
 - **Local data:** `./mvnw spring-boot:test-run` does the same and runs the seeders (R20); add
-  `-Dspring-boot.run.arguments=--foody.seed.scale=LARGE` for volume. Seeders skip tables that
-  already have data — for a fresh start, `docker compose down` and remove the
-  `foody-local_postgres-data` volume. Swagger UI is there too, at
+  `-Dspring-boot.run.arguments=--foody.seed.scale=LARGE` for volume. The seed reads its accounts
+  from `.env`: `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` for the admin, `SEED_STAFF_EMAIL` and
+  `SEED_CUSTOMER_EMAIL` for one staff and one customer, and `SEED_DEFAULT_PASSWORD` for everyone but
+  the admin — 4 more staff and 50 customers per scale unit. Without them `test-run` refuses to
+  start. Seeders skip tables that already have data — for a fresh start, `docker compose down` and
+  remove the `foody-local_postgres-data` volume. Swagger UI is there too, at
   `http://localhost:8080/swagger-ui.html` — and only there: springdoc is a test dependency.
 - **Image:** `docker build -t foody-api .` (ADR-0004). **Deploy:**
-  `docker compose -f compose.deploy.yaml up -d`, with the `.env` on the host. Nothing secret
-  lives in the compose files or the image.
+  `docker compose -f compose.deploy.yaml up -d`, with the `.env` on the host and the key pair in
+  `.secrets/` (or wherever `JWT_PRIVATE_KEY_FILE` and `JWT_PUBLIC_KEY_FILE` point), mounted as
+  compose secrets. `FOODY_WEB_ALLOWEDORIGINS` lists the front's origins. Nothing secret lives in
+  the compose files or the image.
 - **Memory:** the heap is 50% of the container limit. To give the API more memory, raise
   `API_MEMORY_LIMIT` — never add `-Xmx` or raise the percentage: the other half is non-heap,
   threads and native memory, and running short of it gets the container killed (ADR-0004).
@@ -303,7 +318,8 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
 `./mvnw verify` · `bash scripts/check-comments.sh` — the same gates CI runs (ADR-0009). `verify`
 must end in `BUILD SUCCESS`; it checks the format (fix it with `./mvnw spring-javaformat:apply`),
 runs the tests and the architecture rules in `ArchitectureTest` (layers, packages, entities,
-exception handling, standard streams, field injection) and rewrites `docs/openapi.json`. Docker
+exception handling, protected controllers, standard streams, field injection) and rewrites
+`docs/openapi.json`. Docker
 must be running: database tests use Testcontainers (R18). Changed a dependency or the `Dockerfile`?
 Also bring up `compose.deploy.yaml` and wait for the API to report healthy — a JDK module that
 `jdeps` cannot see fails only when the image runs (ADR-0004). A rule that blocks you is fixed in the

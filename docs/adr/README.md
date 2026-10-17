@@ -76,13 +76,18 @@ needs migration, rework or monitoring.
 | ID | Date | Decision | Status |
 |---|---|---|---|
 | [ADR-0001](./0001-navigation-and-permissions-are-served-by-get-me.md) | 2026-10-16 | Navigation and permissions are served by GET /me | Accepted |
-| [ADR-0002](./0002-authenticate-with-short-lived-jwts-and-server-side-refresh-tokens.md) | 2026-10-16 | Authenticate with short-lived JWTs and server-side refresh tokens | Accepted |
+| [ADR-0002](./0002-authenticate-with-short-lived-jwts-and-server-side-refresh-tokens.md) | 2026-10-16 | Authenticate with short-lived JWTs and server-side refresh tokens | Accepted — public endpoint list superseded by ADR-0013 |
 | [ADR-0003](./0003-persist-in-postgresql-through-jpa-with-flyway-migrations.md) | 2026-10-16 | Persist in PostgreSQL through Spring Data JPA, with Flyway migrations | Accepted |
 | [ADR-0004](./0004-ship-a-jlink-trimmed-jre-on-alpine-with-local-and-deploy-compose.md) | 2026-10-16 | Ship a jlink-trimmed JRE on Alpine, with separate local and deploy compose files | Accepted |
-| [ADR-0005](./0005-one-http-and-data-contract-for-every-endpoint.md) | 2026-10-16 | One HTTP and data contract for every endpoint | Accepted — soft delete superseded by ADR-0006 |
+| [ADR-0005](./0005-one-http-and-data-contract-for-every-endpoint.md) | 2026-10-16 | One HTTP and data contract for every endpoint | Accepted — soft delete superseded by ADR-0006; exception bases superseded by ADR-0014 |
 | [ADR-0006](./0006-disable-with-disabledat-and-delete-for-real.md) | 2026-10-16 | Disable with `disabledAt`; delete for real; soft delete only by exception | Accepted |
 | [ADR-0007](./0007-seed-local-data-with-factories-and-seeders-on-the-test-classpath.md) | 2026-10-16 | Seed local data with factories and seeders on the test classpath | Accepted |
 | [ADR-0008](./0008-publish-the-openapi-contract-from-a-test.md) | 2026-10-16 | Publish the OpenAPI contract from a test, keeping springdoc out of production | Accepted |
 | [ADR-0009](./0009-enforce-the-code-rules-with-tooling-and-ci.md) | 2026-10-16 | Enforce the code rules with tooling and CI | Accepted |
 | [ADR-0010](./0010-log-structured-json-with-a-request-id.md) | 2026-10-16 | Log structured JSON in deploy, every line tied to a request id | Accepted |
 | [ADR-0011](./0011-keep-dependencies-current-with-dependabot.md) | 2026-10-16 | Keep dependencies current with Dependabot | Accepted |
+| [ADR-0012](./0012-grant-screens-and-actions-to-roles-in-code.md) | 2026-10-16 | Grant screens and actions to roles in code | Accepted |
+| [ADR-0013](./0013-open-registration-and-health-to-anonymous-callers.md) | 2026-10-16 | Open registration and health to anonymous callers | Accepted |
+| [ADR-0014](./0014-render-security-failures-and-rate-limits-as-problem-details.md) | 2026-10-16 | Render security failures and rate limits as Problem Details | Accepted |
+| [ADR-0015](./0015-load-jwt-signing-keys-from-pem-files-mounted-as-secrets.md) | 2026-10-16 | Load JWT signing keys from PEM files mounted as secrets | Accepted |
+| [ADR-0016](./0016-read-time-from-an-injected-clock.md) | 2026-10-16 | Read time from an injected Clock | Accepted |

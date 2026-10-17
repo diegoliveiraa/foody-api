@@ -16,6 +16,8 @@ public final class ArchitectureConstants {
 
 	public static final String REPOSITORY_PACKAGE = "..repository..";
 
+	public static final String AUTH_CONTROLLER_PACKAGE = "..auth.controller..";
+
 	private ArchitectureConstants() {
 	}
 

@@ -39,4 +39,20 @@ class OpenApiContractTest {
 		assertThat(OpenApiConstants.CONTRACT_FILE).hasContent(contract);
 	}
 
+	@Test
+	void declaresBearerAuthenticationOnlyOnProtectedOperations() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.securitySchemes.bearer.scheme")
+			.isEqualTo(OpenApiConstants.BEARER_SCHEME);
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/me'].get.security[0]")
+			.asMap()
+			.containsOnlyKeys(OpenApiConstants.BEARER_SCHEME);
+		assertThat(result).bodyJson().doesNotHavePath("$.paths['/auth/login'].post.security");
+	}
+
 }

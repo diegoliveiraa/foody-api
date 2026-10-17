@@ -1,6 +1,7 @@
 package com.foody.api.shared.exception;
 
 import com.foody.api.shared.message.Messages;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 public abstract class DomainException extends RuntimeException {
@@ -27,5 +28,9 @@ public abstract class DomainException extends RuntimeException {
 	}
 
 	public abstract HttpStatus status();
+
+	public HttpHeaders headers() {
+		return HttpHeaders.EMPTY;
+	}
 
 }

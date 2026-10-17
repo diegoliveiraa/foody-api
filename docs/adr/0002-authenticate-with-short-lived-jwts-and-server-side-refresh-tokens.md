@@ -1,6 +1,6 @@
 # ADR-0002 — Authenticate with short-lived JWTs and server-side refresh tokens
 
-- **Status:** Accepted
+- **Status:** Accepted — public endpoint list superseded by ADR-0013
 - **Date:** 2026-10-16
 - **Decided by:** Diego
 

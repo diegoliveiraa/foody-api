@@ -6,6 +6,8 @@ public final class SeedConstants {
 
 	public static final String PROFILE = "seed";
 
+	public static final String PROPERTIES_PREFIX = "foody.seed";
+
 	public static final Locale LOCALE = Locale.of("pt", "BR");
 
 	public static final String SKIPPED_LOG = "Seed {} skipped: its data is already there";

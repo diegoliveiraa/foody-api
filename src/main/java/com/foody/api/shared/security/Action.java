@@ -1,0 +1,7 @@
+package com.foody.api.shared.security;
+
+public enum Action {
+
+	PLACE_ORDER, CANCEL, REQUEST_CANCELLATION, UPDATE_STATUS, DECIDE_CANCELLATION, CREATE, UPDATE, DISABLE, DELETE
+
+}

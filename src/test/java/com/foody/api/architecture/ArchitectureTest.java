@@ -1,6 +1,7 @@
 package com.foody.api.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
@@ -18,6 +19,7 @@ import javax.sql.DataSource;
 import org.springframework.data.repository.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -93,6 +95,19 @@ class ArchitectureTest {
 		.doNotHaveFullyQualifiedName(GlobalExceptionHandler.class.getName())
 		.should()
 		.beAnnotatedWith(ExceptionHandler.class);
+
+	@ArchTest
+	static final ArchRule everyPublicControllerMethodOutsideAuthIsProtected = methods().that()
+		.arePublic()
+		.and()
+		.areDeclaredInClassesThat()
+		.areAnnotatedWith(RestController.class)
+		.and()
+		.areDeclaredInClassesThat()
+		.resideOutsideOfPackage(ArchitectureConstants.AUTH_CONTROLLER_PACKAGE)
+		.should()
+		.beMetaAnnotatedWith(PreAuthorize.class)
+		.allowEmptyShould(true);
 
 	@ArchTest
 	static final ArchRule noStandardStreams = GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;

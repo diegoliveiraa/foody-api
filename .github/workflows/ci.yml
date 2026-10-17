@@ -38,6 +38,8 @@ jobs:
       POSTGRES_PASSWORD: ci-${{ github.run_id }}
     steps:
       - uses: actions/checkout@v7
+      - name: Generate a throwaway JWT key pair
+        run: bash scripts/generate-jwt-keys.sh
       - name: Build the image and start the deploy stack
         run: docker compose -f compose.deploy.yaml up -d --build --wait --wait-timeout 300
       - name: Logs on failure

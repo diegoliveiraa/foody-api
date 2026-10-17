@@ -10,7 +10,13 @@ public enum Messages {
 	CONCURRENT_UPDATE("O registro foi alterado por outra operação. Recarregue e tente novamente"),
 	DATA_CONFLICT("A operação conflita com dados existentes"),
 	REQUEST_FAILED("Não foi possível processar a requisição"),
-	INTERNAL_ERROR("Erro inesperado. Tente novamente em instantes");
+	INTERNAL_ERROR("Erro inesperado. Tente novamente em instantes"), UNAUTHENTICATED("Autenticação necessária"),
+	FORBIDDEN("Você não tem permissão para acessar este recurso"),
+	RATE_LIMITED("Muitas tentativas, tente novamente em instantes"), INVALID_CREDENTIALS("E-mail ou senha inválidos"),
+	EMAIL_ALREADY_REGISTERED("Este e-mail já está cadastrado"),
+	REFRESH_TOKEN_INVALID("Sua sessão expirou, entre novamente"),
+	PASSWORD_TOO_SHORT("A senha é curta demais. Mínimo de caracteres"),
+	PASSWORD_TOO_LONG("A senha é longa demais. Máximo de bytes");
 
 	private final String text;
 

@@ -16,6 +16,8 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,8 +30,23 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(DomainException.class)
-	public ProblemDetail handleDomain(DomainException exception) {
-		return problem(exception.status(), exception.messageKey(), exception.getMessage());
+	public ResponseEntity<ProblemDetail> handleDomain(DomainException exception) {
+		ProblemDetail problem = problem(exception.status(), exception.messageKey(), exception.getMessage());
+		return ResponseEntity.status(exception.status()).headers(exception.headers()).body(problem);
+	}
+
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<ProblemDetail> handleUnauthenticated(AuthenticationException exception) {
+		ProblemDetail problem = problem(HttpStatus.UNAUTHORIZED, Messages.UNAUTHENTICATED,
+				Messages.UNAUTHENTICATED.text());
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+			.header(HttpHeaders.WWW_AUTHENTICATE, ErrorConstants.BEARER_CHALLENGE)
+			.body(problem);
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	public ProblemDetail handleForbidden(AccessDeniedException exception) {
+		return problem(HttpStatus.FORBIDDEN, Messages.FORBIDDEN, Messages.FORBIDDEN.text());
 	}
 
 	@ExceptionHandler(PropertyReferenceException.class)

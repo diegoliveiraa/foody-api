@@ -1,6 +1,6 @@
 # ADR-0005 — One HTTP and data contract for every endpoint
 
-- **Status:** Accepted — soft delete superseded by ADR-0006
+- **Status:** Accepted — soft delete superseded by ADR-0006; exception bases superseded by ADR-0014
 - **Date:** 2026-10-16
 - **Decided by:** Diego
 

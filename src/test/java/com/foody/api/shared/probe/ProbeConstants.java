@@ -1,5 +1,6 @@
 package com.foody.api.shared.probe;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +15,8 @@ public final class ProbeConstants {
 	public static final List<String> ITEMS = List.of("a", "b");
 
 	public static final long TOTAL_ITEMS = 42;
+
+	public static final Duration RETRY_AFTER = Duration.ofSeconds(30);
 
 	private ProbeConstants() {
 	}

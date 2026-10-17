@@ -9,14 +9,16 @@ import com.foody.api.shared.probe.ProbeController;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
-@WebMvcTest
+@WebMvcTest(controllers = ProbeController.class, excludeAutoConfiguration = ServletWebSecurityAutoConfiguration.class)
 @Import(ProbeController.class)
 class GlobalExceptionHandlerTest {
 
@@ -113,6 +115,72 @@ class GlobalExceptionHandlerTest {
 
 		assertThat(result).hasStatus(HttpStatus.CONFLICT);
 		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.CONCURRENT_UPDATE.name());
+	}
+
+	@Test
+	void answersAnUnauthorizedDomainExceptionWith401CarryingTheBearerChallenge() {
+		String requestId = "login-attempt-1";
+
+		MvcTestResult result = mvc.get()
+			.uri(ProbeConstants.BASE_PATH + "/unauthorized")
+			.header(ObservabilityConstants.REQUEST_ID_HEADER, requestId)
+			.exchange();
+
+		assertThat(result).hasStatus(HttpStatus.UNAUTHORIZED)
+			.hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+			.hasHeader(HttpHeaders.WWW_AUTHENTICATE, ErrorConstants.BEARER_CHALLENGE);
+		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.INVALID_CREDENTIALS.name());
+		assertThat(result).bodyJson().extractingPath("$.requestId").isEqualTo(requestId);
+	}
+
+	@Test
+	void answersAnAuthenticationFailureWith401UnauthenticatedWithoutLeakingItsMessage() {
+		String requestId = "expired-session-2";
+
+		MvcTestResult result = mvc.get()
+			.uri(ProbeConstants.BASE_PATH + "/unauthenticated")
+			.header(ObservabilityConstants.REQUEST_ID_HEADER, requestId)
+			.exchange();
+
+		assertThat(result).hasStatus(HttpStatus.UNAUTHORIZED)
+			.hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+			.hasHeader(HttpHeaders.WWW_AUTHENTICATE, ErrorConstants.BEARER_CHALLENGE);
+		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.UNAUTHENTICATED.name());
+		assertThat(result).bodyJson().extractingPath("$.detail").isEqualTo(Messages.UNAUTHENTICATED.text());
+		assertThat(result).bodyJson().extractingPath("$.requestId").isEqualTo(requestId);
+		assertThat(result).body().asString().doesNotContain(ProbeConstants.SECRET_DETAIL);
+	}
+
+	@Test
+	void answersAnAccessDeniedWith403ForbiddenWithoutLeakingItsMessage() {
+		String requestId = "staff-only-3";
+
+		MvcTestResult result = mvc.get()
+			.uri(ProbeConstants.BASE_PATH + "/access-denied")
+			.header(ObservabilityConstants.REQUEST_ID_HEADER, requestId)
+			.exchange();
+
+		assertThat(result).hasStatus(HttpStatus.FORBIDDEN).hasContentType(MediaType.APPLICATION_PROBLEM_JSON);
+		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.FORBIDDEN.name());
+		assertThat(result).bodyJson().extractingPath("$.detail").isEqualTo(Messages.FORBIDDEN.text());
+		assertThat(result).bodyJson().extractingPath("$.requestId").isEqualTo(requestId);
+		assertThat(result).body().asString().doesNotContain(ProbeConstants.SECRET_DETAIL);
+	}
+
+	@Test
+	void answersTooManyRequestsWith429TellingWhenToRetry() {
+		String requestId = "burst-4";
+
+		MvcTestResult result = mvc.get()
+			.uri(ProbeConstants.BASE_PATH + "/too-many-requests")
+			.header(ObservabilityConstants.REQUEST_ID_HEADER, requestId)
+			.exchange();
+
+		assertThat(result).hasStatus(HttpStatus.TOO_MANY_REQUESTS)
+			.hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+			.hasHeader(HttpHeaders.RETRY_AFTER, String.valueOf(ProbeConstants.RETRY_AFTER.toSeconds()));
+		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.RATE_LIMITED.name());
+		assertThat(result).bodyJson().extractingPath("$.requestId").isEqualTo(requestId);
 	}
 
 	@Test
