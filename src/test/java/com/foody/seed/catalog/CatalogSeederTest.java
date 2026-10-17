@@ -8,6 +8,7 @@ import com.foody.api.catalog.entity.Category;
 import com.foody.api.catalog.entity.Product;
 import com.foody.api.catalog.repository.CategoryRepository;
 import com.foody.api.catalog.repository.ProductRepository;
+import com.foody.api.order.repository.OrderRepository;
 import com.foody.seed.SeedProperties;
 import com.foody.seed.SeedRunner;
 import com.foody.seed.SeedScale;
@@ -41,6 +42,9 @@ class CatalogSeederTest {
 	private static final BigDecimal HIGHEST_PRICE = new BigDecimal(CatalogConstants.PRICE_MAX);
 
 	@Autowired
+	private OrderRepository orderRepository;
+
+	@Autowired
 	private CategoryRepository categoryRepository;
 
 	@Autowired
@@ -62,6 +66,7 @@ class CatalogSeederTest {
 
 	@BeforeEach
 	void startFromAnEmptyCatalog() {
+		orderRepository.deleteAllInBatch();
 		productRepository.deleteAllInBatch();
 		categoryRepository.deleteAllInBatch();
 		seeder = new CatalogSeeder(categoryRepository, productRepository, categories, products, faker);

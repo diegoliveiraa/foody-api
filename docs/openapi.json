@@ -757,6 +757,235 @@
         } ],
         "tags" : [ "menu-controller" ]
       }
+    },
+    "/my-orders" : {
+      "get" : {
+        "operationId" : "myOrderList",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "in" : "query",
+          "name" : "pageSize",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10,
+            "enum" : [ 10, 25, 50, 100 ]
+          }
+        }, {
+          "description" : "property,asc or property,desc; repeat it to sort by more than one property",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseCustomerOrderSummaryResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "my-order-controller" ]
+      },
+      "post" : {
+        "operationId" : "myOrderPlace",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PlaceOrderRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "my-order-controller" ]
+      }
+    },
+    "/my-orders/{id}" : {
+      "get" : {
+        "operationId" : "myOrderDetail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "my-order-controller" ]
+      }
+    },
+    "/orders" : {
+      "get" : {
+        "operationId" : "orderList",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+            }
+          }
+        }, {
+          "in" : "query",
+          "name" : "from",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "in" : "query",
+          "name" : "search",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "in" : "query",
+          "name" : "pageSize",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10,
+            "enum" : [ 10, 25, 50, 100 ]
+          }
+        }, {
+          "description" : "property,asc or property,desc; repeat it to sort by more than one property",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseStaffOrderSummaryResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "order-controller" ]
+      }
+    },
+    "/orders/{id}" : {
+      "get" : {
+        "operationId" : "orderDetail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "order-controller" ]
+      }
     }
   },
   "components" : {
@@ -893,6 +1122,186 @@
         },
         "required" : [ "role" ]
       },
+      "CustomerOrderDetailResponse" : {
+        "type" : "object",
+        "properties" : {
+          "cancellation" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/OrderCancellationResponse"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "deliveryAddress" : {
+            "$ref" : "#/components/schemas/DeliveryAddressResponse"
+          },
+          "history" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CustomerOrderHistoryEntry"
+            }
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrderItemResponse"
+            }
+          },
+          "live" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "placedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          },
+          "total" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "deliveryAddress", "history", "id", "items", "live", "number", "placedAt", "status", "total" ]
+      },
+      "CustomerOrderHistoryEntry" : {
+        "type" : "object",
+        "properties" : {
+          "actorSide" : {
+            "type" : "string",
+            "enum" : [ "CUSTOMER", "RESTAURANT" ]
+          },
+          "fromStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "occurredAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "reason" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+          },
+          "toStatus" : {
+            "type" : "string",
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          }
+        },
+        "required" : [ "actorSide", "occurredAt", "toStatus" ]
+      },
+      "CustomerOrderSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrderItemSummary"
+            }
+          },
+          "live" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "placedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          },
+          "total" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "id", "items", "live", "number", "placedAt", "status", "total" ]
+      },
+      "DeliveryAddressRequest" : {
+        "type" : "object",
+        "properties" : {
+          "city" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 2
+          },
+          "complement" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "neighborhood" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 2
+          },
+          "number" : {
+            "type" : "string",
+            "maxLength" : 10,
+            "minLength" : 1
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" ]
+          },
+          "street" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 2
+          },
+          "zipCode" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "city", "neighborhood", "number", "state", "street", "zipCode" ]
+      },
+      "DeliveryAddressResponse" : {
+        "type" : "object",
+        "properties" : {
+          "city" : {
+            "type" : "string"
+          },
+          "complement" : {
+            "type" : [ "string", "null" ]
+          },
+          "neighborhood" : {
+            "type" : "string"
+          },
+          "number" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" ]
+          },
+          "street" : {
+            "type" : "string"
+          },
+          "zipCode" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "city", "neighborhood", "number", "state", "street", "zipCode" ]
+      },
       "LoginRequest" : {
         "type" : "object",
         "properties" : {
@@ -1026,6 +1435,75 @@
         },
         "required" : [ "categories" ]
       },
+      "OrderCancellationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "cancelledBy" : {
+            "type" : "string",
+            "enum" : [ "CUSTOMER", "RESTAURANT" ]
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "reason" : {
+            "type" : "string",
+            "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+          }
+        },
+        "required" : [ "cancelledBy", "reason" ]
+      },
+      "OrderCustomer" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "id", "name" ]
+      },
+      "OrderItemResponse" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "productName" : {
+            "type" : "string"
+          },
+          "quantity" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "subtotal" : {
+            "type" : "number"
+          },
+          "unitPrice" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "productId", "productName", "quantity", "subtotal", "unitPrice" ]
+      },
+      "OrderItemSummary" : {
+        "type" : "object",
+        "properties" : {
+          "productName" : {
+            "type" : "string"
+          },
+          "quantity" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "productName", "quantity" ]
+      },
       "PageMeta" : {
         "type" : "object",
         "properties" : {
@@ -1069,6 +1547,21 @@
         },
         "required" : [ "data", "meta" ]
       },
+      "PageResponseCustomerOrderSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CustomerOrderSummaryResponse"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/PageMeta"
+          }
+        },
+        "required" : [ "data", "meta" ]
+      },
       "PageResponseProductResponse" : {
         "type" : "object",
         "properties" : {
@@ -1083,6 +1576,38 @@
           }
         },
         "required" : [ "data", "meta" ]
+      },
+      "PageResponseStaffOrderSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StaffOrderSummaryResponse"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/PageMeta"
+          }
+        },
+        "required" : [ "data", "meta" ]
+      },
+      "PlaceOrderRequest" : {
+        "type" : "object",
+        "properties" : {
+          "deliveryAddress" : {
+            "$ref" : "#/components/schemas/DeliveryAddressRequest"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CartItem"
+            },
+            "maxItems" : 50,
+            "minItems" : 1
+          }
+        },
+        "required" : [ "deliveryAddress", "items" ]
       },
       "ProductCategory" : {
         "type" : "object",
@@ -1215,6 +1740,128 @@
           }
         },
         "required" : [ "email", "name", "password" ]
+      },
+      "StaffOrderDetailResponse" : {
+        "type" : "object",
+        "properties" : {
+          "cancellation" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/OrderCancellationResponse"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "customer" : {
+            "$ref" : "#/components/schemas/OrderCustomer"
+          },
+          "deliveryAddress" : {
+            "$ref" : "#/components/schemas/DeliveryAddressResponse"
+          },
+          "history" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StaffOrderHistoryEntry"
+            }
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrderItemResponse"
+            }
+          },
+          "live" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "placedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          },
+          "total" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "customer", "deliveryAddress", "history", "id", "items", "live", "number", "placedAt", "status", "total" ]
+      },
+      "StaffOrderHistoryEntry" : {
+        "type" : "object",
+        "properties" : {
+          "actorName" : {
+            "type" : "string"
+          },
+          "actorSide" : {
+            "type" : "string",
+            "enum" : [ "CUSTOMER", "RESTAURANT" ]
+          },
+          "fromStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "occurredAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "reason" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+          },
+          "toStatus" : {
+            "type" : "string",
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          }
+        },
+        "required" : [ "actorName", "actorSide", "occurredAt", "toStatus" ]
+      },
+      "StaffOrderSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "customerName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrderItemSummary"
+            }
+          },
+          "live" : {
+            "type" : "boolean"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "placedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          },
+          "total" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "customerName", "id", "items", "live", "number", "placedAt", "status", "total" ]
       }
     },
     "securitySchemes" : {

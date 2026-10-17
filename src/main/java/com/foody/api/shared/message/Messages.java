@@ -23,7 +23,10 @@ public enum Messages {
 	CATEGORY_NAME_TAKEN("Já existe uma categoria com esse nome"),
 	CATEGORY_IN_USE("A categoria ainda tem produtos; desabilite-a em vez de excluir"),
 	UNKNOWN_CATEGORY("Categoria informada não existe"),
-	DUPLICATE_CART_PRODUCT("Cada produto pode aparecer uma única vez");
+	DUPLICATE_CART_PRODUCT("Cada produto pode aparecer uma única vez"),
+	PRODUCT_IN_USE("O produto já aparece em pedidos; desabilite-o em vez de excluir"),
+	ORDER_NOT_FOUND("Pedido não encontrado"), PRODUCT_UNAVAILABLE("Um ou mais produtos não estão mais disponíveis"),
+	INVALID_ZIP_CODE("CEP inválido. Use o formato 00000-000");
 
 	private final String text;
 

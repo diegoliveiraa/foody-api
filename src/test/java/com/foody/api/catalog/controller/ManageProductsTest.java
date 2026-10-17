@@ -13,6 +13,7 @@ import com.foody.api.shared.security.Role;
 import com.foody.api.user.entity.User;
 import com.foody.seed.catalog.CategoryFactory;
 import com.foody.seed.catalog.ProductFactory;
+import com.foody.seed.order.OrderFactory;
 import com.foody.seed.user.UserFactory;
 import com.foody.testsupport.api.ApiIntegrationTest;
 import com.foody.testsupport.security.AccessTokens;
@@ -60,6 +61,9 @@ class ManageProductsTest {
 
 	@Autowired
 	private ProductFactory products;
+
+	@Autowired
+	private OrderFactory orders;
 
 	@Autowired
 	private ProductRepository productRepository;
@@ -241,6 +245,35 @@ class ManageProductsTest {
 
 		assertThat(result).hasStatus(HttpStatus.NO_CONTENT);
 		assertThat(productRepository.existsById(product.getId())).isFalse();
+	}
+
+	@Test
+	void deletingProductThatAppearsInOrdersIsRejected() {
+		User staff = staff();
+		Product ordered = products.create(categories.create());
+		orders.create(users.create(), ordered);
+
+		MvcTestResult result = delete(staff, ordered.getId());
+
+		assertThat(result).hasStatus(HttpStatus.CONFLICT);
+		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.PRODUCT_IN_USE.name());
+		assertThat(result).bodyJson().extractingPath("$.detail").isEqualTo(Messages.PRODUCT_IN_USE.text());
+		assertThat(productRepository.existsById(ordered.getId())).isTrue();
+	}
+
+	@Test
+	void deletingUnusedProductStillWorks() {
+		User staff = staff();
+		Category category = categories.create();
+		Product ordered = products.create(category);
+		Product unused = products.create(category);
+		orders.create(users.create(), ordered);
+
+		MvcTestResult result = delete(staff, unused.getId());
+
+		assertThat(result).hasStatus(HttpStatus.NO_CONTENT);
+		assertThat(productRepository.existsById(unused.getId())).isFalse();
+		assertThat(productRepository.existsById(ordered.getId())).isTrue();
 	}
 
 	@Test

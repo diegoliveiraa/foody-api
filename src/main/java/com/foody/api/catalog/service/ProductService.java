@@ -6,11 +6,13 @@ import com.foody.api.catalog.dto.ProductRequest;
 import com.foody.api.catalog.dto.ProductResponse;
 import com.foody.api.catalog.entity.Category;
 import com.foody.api.catalog.entity.Product;
+import com.foody.api.catalog.exception.ProductInUseException;
 import com.foody.api.catalog.exception.ProductNotFoundException;
 import com.foody.api.catalog.exception.UnknownCategoryException;
 import com.foody.api.catalog.repository.CategoryRepository;
 import com.foody.api.catalog.repository.ProductRepository;
 import com.foody.api.shared.pagination.PageRequests;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +26,13 @@ public class ProductService {
 
 	private final CategoryRepository categories;
 
-	public ProductService(ProductRepository products, CategoryRepository categories) {
+	private final List<ProductReferenceLookup> references;
+
+	public ProductService(ProductRepository products, CategoryRepository categories,
+			List<ProductReferenceLookup> references) {
 		this.products = products;
 		this.categories = categories;
+		this.references = references;
 	}
 
 	@Transactional(readOnly = true)
@@ -67,7 +73,11 @@ public class ProductService {
 
 	@Transactional
 	public void delete(UUID id) {
-		products.delete(find(id));
+		Product product = find(id);
+		if (references.stream().anyMatch(lookup -> lookup.isReferenced(id))) {
+			throw new ProductInUseException();
+		}
+		products.delete(product);
 	}
 
 	private Product find(UUID id) {

@@ -3,6 +3,7 @@ package com.foody.seed.user;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.foody.api.auth.repository.RefreshTokenRepository;
+import com.foody.api.order.repository.OrderRepository;
 import com.foody.api.shared.security.Role;
 import com.foody.api.user.entity.User;
 import com.foody.api.user.repository.UserRepository;
@@ -36,6 +37,9 @@ class IdentitySeederTest {
 	private static final long RANDOM_SEED = 42;
 
 	@Autowired
+	private OrderRepository orderRepository;
+
+	@Autowired
 	private UserRepository userRepository;
 
 	@Autowired
@@ -57,6 +61,7 @@ class IdentitySeederTest {
 
 	@BeforeEach
 	void startFromAnEmptyUsersTable() {
+		orderRepository.deleteAllInBatch();
 		refreshTokenRepository.deleteAllInBatch();
 		userRepository.deleteAllInBatch();
 		seeder = new IdentitySeeder(userRepository, users, faker, passwordEncoder, PROPERTIES);

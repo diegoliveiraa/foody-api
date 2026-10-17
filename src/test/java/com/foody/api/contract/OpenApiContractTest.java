@@ -203,6 +203,82 @@ class OpenApiContractTest {
 	}
 
 	@Test
+	void publishesTheOrderEndpointsNamedAfterTheirControllers() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/my-orders'].post.operationId")
+			.isEqualTo("myOrderPlace");
+		assertThat(result).bodyJson().extractingPath("$.paths['/my-orders'].get.operationId").isEqualTo("myOrderList");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/my-orders/{id}'].get.operationId")
+			.isEqualTo("myOrderDetail");
+		assertThat(result).bodyJson().extractingPath("$.paths['/orders'].get.operationId").isEqualTo("orderList");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders/{id}'].get.operationId")
+			.isEqualTo("orderDetail");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders'].get.parameters[*].name")
+			.asArray()
+			.containsExactlyInAnyOrder("status", "from", "to", "search", "page", "pageSize", "sort");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders'].get.parameters[?(@.name == 'status')].schema.type")
+			.asArray()
+			.containsExactly("array");
+	}
+
+	@Test
+	void requiresEveryOrderComponentButTheNullableOnes() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.PlaceOrderRequest.required")
+			.asArray()
+			.containsExactlyInAnyOrder("items", "deliveryAddress");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DeliveryAddressRequest.required")
+			.asArray()
+			.containsExactlyInAnyOrder("zipCode", "street", "number", "neighborhood", "city", "state");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CustomerOrderDetailResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "live", "items", "total",
+					"deliveryAddress", "history");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CustomerOrderDetailResponse.properties.cancellation.oneOf[1].type")
+			.isEqualTo("null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.StaffOrderDetailResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "live", "customer", "items", "total",
+					"deliveryAddress", "history");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.StaffOrderSummaryResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "total", "live", "customerName", "items");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CustomerOrderHistoryEntry.required")
+			.asArray()
+			.containsExactlyInAnyOrder("toStatus", "occurredAt", "actorSide");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CustomerOrderHistoryEntry.properties.fromStatus.type")
+			.asArray()
+			.containsExactlyInAnyOrder("string", "null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.StaffOrderHistoryEntry.required")
+			.asArray()
+			.containsExactlyInAnyOrder("toStatus", "occurredAt", "actorSide", "actorName");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.OrderCancellationResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("cancelledBy", "reason");
+	}
+
+	@Test
 	void publishesThePaginationParametersTheApiReads() {
 		String path = OpenApiConstants.DOCS_PATH;
 

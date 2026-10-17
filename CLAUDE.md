@@ -145,8 +145,9 @@ Package by feature: one package per domain (`com.foody.api.<domain>`), with
 orchestrator plus sub-services; it does not become a 40-method class.
 
 A feature that must react to another one's change listens to a domain event the other publishes
-(ADR-0019); feature packages never depend on each other in both directions — `ArchitectureTest`
-checks it.
+(ADR-0019); a feature that must ask another one a question declares it as an interface in its own
+package, and the feature that owns the data implements it (ADR-0023). Feature packages never depend
+on each other in both directions — `ArchitectureTest` checks it.
 
 ### R10 — No `System.out` / `System.err` / `printStackTrace()`
 
