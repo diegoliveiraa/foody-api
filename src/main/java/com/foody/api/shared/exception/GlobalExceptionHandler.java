@@ -1,9 +1,11 @@
 package com.foody.api.shared.exception;
 
 import com.foody.api.shared.message.Messages;
+import com.foody.api.shared.observability.ObservabilityConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.core.PropertyReferenceException;
@@ -103,7 +105,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		Messages message = ErrorConstants.MESSAGES_BY_STATUS.getOrDefault(status.value(), Messages.REQUEST_FAILED);
 		problem.setDetail(message.text());
 		problem.setProperty(ErrorConstants.PROPERTY_CODE, message.name());
-		return problem;
+		return withRequestId(problem);
 	}
 
 	private boolean hasCode(ProblemDetail problem) {
@@ -119,6 +121,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	private ProblemDetail problem(HttpStatusCode status, Messages message, String detail) {
 		ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
 		problem.setProperty(ErrorConstants.PROPERTY_CODE, message.name());
+		return withRequestId(problem);
+	}
+
+	private ProblemDetail withRequestId(ProblemDetail problem) {
+		String requestId = MDC.get(ObservabilityConstants.REQUEST_ID_KEY);
+		if (requestId != null) {
+			problem.setProperty(ErrorConstants.PROPERTY_REQUEST_ID, requestId);
+		}
 		return problem;
 	}
 

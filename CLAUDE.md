@@ -146,7 +146,10 @@ orchestrator plus sub-services; it does not become a 40-method class.
 
 ### R10 — No `System.out` / `System.err` / `printStackTrace()`
 
-Use the SLF4J logger (`@Slf4j`).
+Use the SLF4J logger (`@Slf4j`), with `{}` placeholders — never a message built by concatenation.
+Every line inside a request already carries its `requestId` (ADR-0010) — never add it by hand.
+Work handed to another thread (`@Async`, schedulers) copies the MDC on purpose or loses the id. A
+log line never holds personal data beyond ids, nor any secret (R17).
 
 ### R11 — No fire-and-forget async
 
@@ -258,6 +261,7 @@ Every endpoint follows ADR-0005:
   `PageResponse.of(page)`. Page sizes are 10, 25, 50 or 100 (`PaginationConstants`); never return
   an unpaginated list of a table that grows.
 - **Instants go out as ISO-8601 UTC, ids as UUID strings, money as decimal numbers.**
+- **Every response carries `X-Request-Id`, and every error body its `requestId`** (ADR-0010).
 - **`docs/openapi.json` is the published contract** (ADR-0008): `OpenApiContractTest` rewrites it
   on every test run. Commit it with the change that alters it; never edit it by hand.
 

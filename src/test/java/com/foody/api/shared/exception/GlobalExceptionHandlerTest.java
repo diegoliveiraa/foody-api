@@ -3,6 +3,7 @@ package com.foody.api.shared.exception;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.foody.api.shared.message.Messages;
+import com.foody.api.shared.observability.ObservabilityConstants;
 import com.foody.api.shared.probe.ProbeConstants;
 import com.foody.api.shared.probe.ProbeController;
 import java.util.UUID;
@@ -88,6 +89,20 @@ class GlobalExceptionHandlerTest {
 		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.INTERNAL_ERROR.name());
 		assertThat(result).bodyJson().extractingPath("$.detail").isEqualTo(Messages.INTERNAL_ERROR.text());
 		assertThat(result).body().asString().doesNotContain(ProbeConstants.SECRET_DETAIL);
+	}
+
+	@Test
+	void carriesTheRequestIdInTheErrorBodySoTheLogsCanBeFound() {
+		String requestId = "support-ticket-7";
+
+		MvcTestResult result = mvc.get()
+			.uri(ProbeConstants.BASE_PATH + "/items/{id}", UUID.randomUUID())
+			.header(ObservabilityConstants.REQUEST_ID_HEADER, requestId)
+			.exchange();
+
+		assertThat(result).hasStatus(HttpStatus.NOT_FOUND)
+			.hasHeader(ObservabilityConstants.REQUEST_ID_HEADER, requestId);
+		assertThat(result).bodyJson().extractingPath("$.requestId").isEqualTo(requestId);
 	}
 
 	@Test

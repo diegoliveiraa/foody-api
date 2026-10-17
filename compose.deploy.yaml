@@ -8,6 +8,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/foody
       SPRING_DATASOURCE_USERNAME: foody
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      LOGGING_STRUCTURED_FORMAT_CONSOLE: ecs
     ports:
       - "${API_PORT:-8080}:8080"
     depends_on:

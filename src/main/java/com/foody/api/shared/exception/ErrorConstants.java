@@ -1,6 +1,7 @@
 package com.foody.api.shared.exception;
 
 import com.foody.api.shared.message.Messages;
+import com.foody.api.shared.observability.ObservabilityConstants;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 
@@ -9,6 +10,8 @@ public final class ErrorConstants {
 	public static final String PROPERTY_CODE = "code";
 
 	public static final String PROPERTY_ERRORS = "errors";
+
+	public static final String PROPERTY_REQUEST_ID = ObservabilityConstants.REQUEST_ID_KEY;
 
 	public static final String DETAIL_SEPARATOR = ": ";
 

@@ -84,3 +84,5 @@ needs migration, rework or monitoring.
 | [ADR-0007](./0007-seed-local-data-with-factories-and-seeders-on-the-test-classpath.md) | 2026-10-16 | Seed local data with factories and seeders on the test classpath | Accepted |
 | [ADR-0008](./0008-publish-the-openapi-contract-from-a-test.md) | 2026-10-16 | Publish the OpenAPI contract from a test, keeping springdoc out of production | Accepted |
 | [ADR-0009](./0009-enforce-the-code-rules-with-tooling-and-ci.md) | 2026-10-16 | Enforce the code rules with tooling and CI | Accepted |
+| [ADR-0010](./0010-log-structured-json-with-a-request-id.md) | 2026-10-16 | Log structured JSON in deploy, every line tied to a request id | Accepted |
+| [ADR-0011](./0011-keep-dependencies-current-with-dependabot.md) | 2026-10-16 | Keep dependencies current with Dependabot | Accepted |
