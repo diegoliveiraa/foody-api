@@ -1,5 +1,6 @@
 package com.foody.api.user.service;
 
+import com.foody.api.shared.pagination.PageRequests;
 import com.foody.api.shared.security.Role;
 import com.foody.api.user.UserConstants;
 import com.foody.api.user.dto.AdminUserFilter;
@@ -13,9 +14,7 @@ import com.foody.api.user.repository.UserRepository;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +32,7 @@ public class AdminUserService {
 
 	@Transactional(readOnly = true)
 	public Page<AdminUserResponse> list(AdminUserFilter filter, Pageable pageable) {
-		Sort sort = pageable.getSortOr(UserConstants.DEFAULT_SORT).and(UserConstants.TIEBREAKER_SORT);
-		Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+		Pageable sorted = PageRequests.sortedOrDefault(pageable, UserConstants.DEFAULT_SORT);
 		return repository.findAllMatching(filter, sorted).map(AdminUserResponse::of);
 	}
 

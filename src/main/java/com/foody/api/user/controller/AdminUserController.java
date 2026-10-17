@@ -2,6 +2,8 @@ package com.foody.api.user.controller;
 
 import com.foody.api.shared.pagination.PageResponse;
 import com.foody.api.shared.pagination.SortGuard;
+import com.foody.api.shared.persistence.ActivationStatus;
+import com.foody.api.shared.route.RouteConstants;
 import com.foody.api.shared.security.Action;
 import com.foody.api.shared.security.AuthenticatedUser;
 import com.foody.api.shared.security.RequiresGrant;
@@ -12,7 +14,6 @@ import com.foody.api.user.UserConstants;
 import com.foody.api.user.dto.AdminUserFilter;
 import com.foody.api.user.dto.AdminUserResponse;
 import com.foody.api.user.dto.ChangeRoleRequest;
-import com.foody.api.user.dto.UserStatus;
 import com.foody.api.user.service.AdminUserService;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class AdminUserController {
 	@GetMapping
 	@RequiresScreen(Screen.ADMIN_USERS)
 	public PageResponse<AdminUserResponse> list(@RequestParam(required = false) String search,
-			@RequestParam(required = false) Role role, @RequestParam(required = false) UserStatus status,
+			@RequestParam(required = false) Role role, @RequestParam(required = false) ActivationStatus status,
 			Pageable pageable) {
 		Pageable allowed = SortGuard.requireAllowed(pageable, UserConstants.SORTABLE_PROPERTIES);
 		return PageResponse.of(adminUsers.list(new AdminUserFilter(search, role, status), allowed));
@@ -53,13 +54,13 @@ public class AdminUserController {
 		return adminUsers.changeRole(caller.id(), id, request.role());
 	}
 
-	@PostMapping(UserConstants.DISABLE_PATH)
+	@PostMapping(RouteConstants.DISABLE_PATH)
 	@RequiresGrant(screen = Screen.ADMIN_USERS, action = Action.DISABLE)
 	public AdminUserResponse disable(@AuthenticationPrincipal AuthenticatedUser caller, @PathVariable UUID id) {
 		return adminUsers.disable(caller.id(), id);
 	}
 
-	@PostMapping(UserConstants.ENABLE_PATH)
+	@PostMapping(RouteConstants.ENABLE_PATH)
 	@RequiresGrant(screen = Screen.ADMIN_USERS, action = Action.DISABLE)
 	public AdminUserResponse enable(@AuthenticationPrincipal AuthenticatedUser caller, @PathVariable UUID id) {
 		return adminUsers.enable(caller.id(), id);

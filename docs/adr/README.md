@@ -94,3 +94,5 @@ needs migration, rework or monitoring.
 | [ADR-0017](./0017-rate-limit-in-memory-with-bucket4j.md) | 2026-10-16 | Rate limit in memory with Bucket4j | Accepted |
 | [ADR-0018](./0018-every-contract-field-is-required-unless-marked-nullable.md) | 2026-10-16 | Every contract field is required unless marked @Nullable | Accepted |
 | [ADR-0019](./0019-react-across-features-with-synchronous-domain-events.md) | 2026-10-17 | React across features with synchronous domain events | Accepted |
+| [ADR-0020](./0020-serve-the-menu-unpaginated-and-price-the-cart-on-the-server.md) | 2026-10-17 | Serve the menu unpaginated and price the cart on the server | Accepted |
+| [ADR-0021](./0021-name-contract-operations-after-their-controller-and-method.md) | 2026-10-17 | Name contract operations after their controller and method | Accepted |

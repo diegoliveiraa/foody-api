@@ -20,7 +20,7 @@ public class MeController {
 
 	@GetMapping(MeConstants.PATH)
 	@RequiresAuthentication
-	public MeResponse me(@AuthenticationPrincipal AuthenticatedUser user) {
+	public MeResponse get(@AuthenticationPrincipal AuthenticatedUser user) {
 		return meService.describe(user.id());
 	}
 

@@ -18,7 +18,7 @@ public abstract class ActivatableEntity extends BaseEntity {
 		if (!isActive()) {
 			return;
 		}
-		disabledAt = Instant.now();
+		disabledAt = Instant.now().truncatedTo(PersistenceConstants.TIMESTAMP_PRECISION);
 	}
 
 	public void enable() {

@@ -18,7 +18,12 @@ public enum Messages {
 	PASSWORD_TOO_SHORT("A senha é curta demais. Mínimo de caracteres"),
 	PASSWORD_TOO_LONG("A senha é longa demais. Máximo de bytes"),
 	CANNOT_CHANGE_OWN_ACCOUNT("Você não pode alterar a sua própria conta"),
-	LAST_ACTIVE_ADMIN("É preciso manter ao menos um administrador ativo");
+	LAST_ACTIVE_ADMIN("É preciso manter ao menos um administrador ativo"),
+	CATEGORY_NOT_FOUND("Categoria não encontrada"), PRODUCT_NOT_FOUND("Produto não encontrado"),
+	CATEGORY_NAME_TAKEN("Já existe uma categoria com esse nome"),
+	CATEGORY_IN_USE("A categoria ainda tem produtos; desabilite-a em vez de excluir"),
+	UNKNOWN_CATEGORY("Categoria informada não existe"),
+	DUPLICATE_CART_PRODUCT("Cada produto pode aparecer uma única vez");
 
 	private final String text;
 

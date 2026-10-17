@@ -16,6 +16,8 @@ public final class SeedConstants {
 
 	public static final String TEST_CLASS_PATTERN = ".*Test(\\$.*)?";
 
+	public static final int PERCENT = 100;
+
 	private SeedConstants() {
 	}
 

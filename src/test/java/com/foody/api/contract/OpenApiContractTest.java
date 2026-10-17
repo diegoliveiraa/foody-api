@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.foody.api.TestcontainersConfiguration;
 import com.foody.testsupport.openapi.OpenApiConfiguration;
 import com.foody.testsupport.openapi.OpenApiConstants;
+import com.jayway.jsonpath.JsonPath;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +39,37 @@ class OpenApiContractTest {
 		assertThat(result).bodyJson().extractingPath("$.info.title").isEqualTo(OpenApiConstants.TITLE);
 		assertThat(result).bodyJson().extractingPath("$.servers[0].url").isEqualTo(OpenApiConstants.SERVER_URL);
 		assertThat(OpenApiConstants.CONTRACT_FILE).hasContent(contract);
+	}
+
+	@Test
+	void namesEveryOperationAfterItsControllerAndMethod() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/admin/users'].get.operationId")
+			.isEqualTo("adminUserList");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/catalog/products'].get.operationId")
+			.isEqualTo("productList");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/catalog/categories'].get.operationId")
+			.isEqualTo("categoryList");
+		assertThat(result).bodyJson().extractingPath("$.paths['/me'].get.operationId").isEqualTo("meGet");
+		assertThat(result).bodyJson().extractingPath("$.paths['/menu'].get.operationId").isEqualTo("menuGet");
+	}
+
+	@Test
+	void givesEveryOperationAUniqueIdWithoutNumericSuffixes() throws IOException {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		String contract = mvc.get().uri(path).exchange().getResponse().getContentAsString(StandardCharsets.UTF_8);
+		List<String> operationIds = JsonPath.read(contract, OpenApiConstants.OPERATION_IDS_PATH);
+
+		assertThat(operationIds).isNotEmpty()
+			.doesNotHaveDuplicates()
+			.allMatch(operationId -> operationId.matches(OpenApiConstants.OPERATION_ID_PATTERN));
 	}
 
 	@Test
@@ -109,6 +142,64 @@ class OpenApiContractTest {
 			.extractingPath("$.components.schemas.AdminUserResponse.properties.disabledAt.type")
 			.asArray()
 			.containsExactlyInAnyOrder("string", "null");
+	}
+
+	@Test
+	void publishesTheCatalogAndMenuEndpoints() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/categories'].get");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/categories'].post");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/categories/{id}'].put");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/categories/{id}'].delete");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/categories/{id}/disable'].post");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/categories/{id}/enable'].post");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/products'].get");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/products'].post");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/products/{id}'].put");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/products/{id}'].delete");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/products/{id}/disable'].post");
+		assertThat(result).bodyJson().hasPath("$.paths['/catalog/products/{id}/enable'].post");
+		assertThat(result).bodyJson().hasPath("$.paths['/menu'].get");
+		assertThat(result).bodyJson().hasPath("$.paths['/menu/quote'].post");
+	}
+
+	@Test
+	void requiresEveryCatalogComponentButTheNullableOnes() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CategoryResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "name", "displayOrder", "status", "productCount");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.ProductResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "name", "price", "category", "status", "createdAt");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.ProductRequest.required")
+			.asArray()
+			.containsExactlyInAnyOrder("name", "price", "categoryId");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.MenuProduct.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "name", "price");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.QuotedItem.required")
+			.asArray()
+			.containsExactlyInAnyOrder("productId", "quantity", "available");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.QuotedItem.properties.unitPrice.type")
+			.asArray()
+			.containsExactlyInAnyOrder("number", "null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CartQuote.required")
+			.asArray()
+			.containsExactlyInAnyOrder("items", "total");
 	}
 
 	@Test

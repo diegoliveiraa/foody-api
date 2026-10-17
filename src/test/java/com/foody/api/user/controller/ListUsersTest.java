@@ -3,9 +3,9 @@ package com.foody.api.user.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.foody.api.shared.message.Messages;
+import com.foody.api.shared.persistence.ActivationStatus;
 import com.foody.api.shared.security.Role;
 import com.foody.api.user.UserConstants;
-import com.foody.api.user.dto.UserStatus;
 import com.foody.api.user.entity.User;
 import com.foody.seed.user.UserFactory;
 import com.foody.testsupport.api.ApiIntegrationTest;
@@ -54,7 +54,7 @@ class ListUsersTest {
 			.asArray()
 			.containsExactly(marker + " K", marker + " L");
 		assertThat(result).bodyJson().extractingPath("$.data[0].role").isEqualTo(Role.CUSTOMER.name());
-		assertThat(result).bodyJson().extractingPath("$.data[0].status").isEqualTo(UserStatus.ACTIVE.name());
+		assertThat(result).bodyJson().extractingPath("$.data[0].status").isEqualTo(ActivationStatus.ACTIVE.name());
 		assertThat(result).bodyJson().extractingPath("$.data[0].createdAt").asString().isNotBlank();
 		assertThat(result).bodyJson().extractingPath("$.data[0].disabledAt").isNull();
 		assertThat(result).bodyJson().extractingPath("$.meta.page").isEqualTo(2);
@@ -119,7 +119,7 @@ class ListUsersTest {
 		MvcTestResult result = mvc.get()
 			.uri(UserConstants.ADMIN_USERS_PATH)
 			.param("search", marker)
-			.param("status", UserStatus.DISABLED.name())
+			.param("status", ActivationStatus.DISABLED.name())
 			.header(HttpHeaders.AUTHORIZATION, tokens.bearer(admin))
 			.exchange();
 
@@ -128,7 +128,7 @@ class ListUsersTest {
 			.extractingPath("$.data[*].id")
 			.asArray()
 			.containsExactly(disabled.getId().toString());
-		assertThat(result).bodyJson().extractingPath("$.data[0].status").isEqualTo(UserStatus.DISABLED.name());
+		assertThat(result).bodyJson().extractingPath("$.data[0].status").isEqualTo(ActivationStatus.DISABLED.name());
 		assertThat(result).bodyJson().extractingPath("$.data[0].disabledAt").asString().isNotBlank();
 	}
 

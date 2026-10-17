@@ -10,7 +10,7 @@
   "paths" : {
     "/admin/users" : {
       "get" : {
-        "operationId" : "list",
+        "operationId" : "adminUserList",
         "parameters" : [ {
           "in" : "query",
           "name" : "search",
@@ -86,7 +86,7 @@
     },
     "/admin/users/{id}/disable" : {
       "post" : {
-        "operationId" : "disable",
+        "operationId" : "adminUserDisable",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -116,7 +116,7 @@
     },
     "/admin/users/{id}/enable" : {
       "post" : {
-        "operationId" : "enable",
+        "operationId" : "adminUserEnable",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -146,7 +146,7 @@
     },
     "/admin/users/{id}/role" : {
       "patch" : {
-        "operationId" : "changeRole",
+        "operationId" : "adminUserChangeRole",
         "parameters" : [ {
           "in" : "path",
           "name" : "id",
@@ -186,7 +186,7 @@
     },
     "/auth/login" : {
       "post" : {
-        "operationId" : "login",
+        "operationId" : "authLogin",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -214,7 +214,7 @@
     },
     "/auth/logout" : {
       "post" : {
-        "operationId" : "logout",
+        "operationId" : "authLogout",
         "parameters" : [ {
           "in" : "cookie",
           "name" : "foody_refresh",
@@ -233,7 +233,7 @@
     },
     "/auth/refresh" : {
       "post" : {
-        "operationId" : "refresh",
+        "operationId" : "authRefresh",
         "parameters" : [ {
           "in" : "cookie",
           "name" : "foody_refresh",
@@ -259,7 +259,7 @@
     },
     "/auth/register" : {
       "post" : {
-        "operationId" : "register",
+        "operationId" : "authRegister",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -285,9 +285,409 @@
         "tags" : [ "auth-controller" ]
       }
     },
+    "/catalog/categories" : {
+      "get" : {
+        "operationId" : "categoryList",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CategoryResponse"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "category-controller" ]
+      },
+      "post" : {
+        "operationId" : "categoryCreate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CategoryRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CategoryResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "category-controller" ]
+      }
+    },
+    "/catalog/categories/{id}" : {
+      "delete" : {
+        "operationId" : "categoryDelete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "category-controller" ]
+      },
+      "put" : {
+        "operationId" : "categoryUpdate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CategoryRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CategoryResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "category-controller" ]
+      }
+    },
+    "/catalog/categories/{id}/disable" : {
+      "post" : {
+        "operationId" : "categoryDisable",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CategoryResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "category-controller" ]
+      }
+    },
+    "/catalog/categories/{id}/enable" : {
+      "post" : {
+        "operationId" : "categoryEnable",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CategoryResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "category-controller" ]
+      }
+    },
+    "/catalog/products" : {
+      "get" : {
+        "operationId" : "productList",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "categoryId",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "ACTIVE", "DISABLED" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "search",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "in" : "query",
+          "name" : "pageSize",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10,
+            "enum" : [ 10, 25, 50, 100 ]
+          }
+        }, {
+          "description" : "property,asc or property,desc; repeat it to sort by more than one property",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseProductResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "product-controller" ]
+      },
+      "post" : {
+        "operationId" : "productCreate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "product-controller" ]
+      }
+    },
+    "/catalog/products/{id}" : {
+      "delete" : {
+        "operationId" : "productDelete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "product-controller" ]
+      },
+      "put" : {
+        "operationId" : "productUpdate",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "product-controller" ]
+      }
+    },
+    "/catalog/products/{id}/disable" : {
+      "post" : {
+        "operationId" : "productDisable",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "product-controller" ]
+      }
+    },
+    "/catalog/products/{id}/enable" : {
+      "post" : {
+        "operationId" : "productEnable",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "product-controller" ]
+      }
+    },
     "/me" : {
       "get" : {
-        "operationId" : "me",
+        "operationId" : "meGet",
         "responses" : {
           "200" : {
             "content" : {
@@ -304,6 +704,58 @@
           "bearer" : [ ]
         } ],
         "tags" : [ "me-controller" ]
+      }
+    },
+    "/menu" : {
+      "get" : {
+        "operationId" : "menuGet",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MenuResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "menu-controller" ]
+      }
+    },
+    "/menu/quote" : {
+      "post" : {
+        "operationId" : "menuQuote",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/QuoteRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CartQuote"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "menu-controller" ]
       }
     }
   },
@@ -353,6 +805,83 @@
           }
         },
         "required" : [ "accessToken", "expiresIn" ]
+      },
+      "CartItem" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "quantity" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 20,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "productId", "quantity" ]
+      },
+      "CartQuote" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/QuotedItem"
+            }
+          },
+          "total" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "items", "total" ]
+      },
+      "CategoryRequest" : {
+        "type" : "object",
+        "properties" : {
+          "displayOrder" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 999,
+            "minimum" : 0
+          },
+          "name" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 2
+          }
+        },
+        "required" : [ "displayOrder", "name" ]
+      },
+      "CategoryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "disabledAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "displayOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "productCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "ACTIVE", "DISABLED" ]
+          }
+        },
+        "required" : [ "displayOrder", "id", "name", "productCount", "status" ]
       },
       "ChangeRoleRequest" : {
         "type" : "object",
@@ -447,6 +976,56 @@
         },
         "required" : [ "email", "id", "name" ]
       },
+      "MenuCategory" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "products" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MenuProduct"
+            }
+          }
+        },
+        "required" : [ "id", "name", "products" ]
+      },
+      "MenuProduct" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "price" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "id", "name", "price" ]
+      },
+      "MenuResponse" : {
+        "type" : "object",
+        "properties" : {
+          "categories" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MenuCategory"
+            }
+          }
+        },
+        "required" : [ "categories" ]
+      },
       "PageMeta" : {
         "type" : "object",
         "properties" : {
@@ -489,6 +1068,133 @@
           }
         },
         "required" : [ "data", "meta" ]
+      },
+      "PageResponseProductResponse" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProductResponse"
+            }
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/PageMeta"
+          }
+        },
+        "required" : [ "data", "meta" ]
+      },
+      "ProductCategory" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "ProductRequest" : {
+        "type" : "object",
+        "properties" : {
+          "categoryId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 2
+          },
+          "price" : {
+            "type" : "number",
+            "exclusiveMinimum" : 0,
+            "maximum" : 9999.99
+          }
+        },
+        "required" : [ "categoryId", "name", "price" ]
+      },
+      "ProductResponse" : {
+        "type" : "object",
+        "properties" : {
+          "category" : {
+            "$ref" : "#/components/schemas/ProductCategory"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "disabledAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "price" : {
+            "type" : "number"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "ACTIVE", "DISABLED" ]
+          }
+        },
+        "required" : [ "category", "createdAt", "id", "name", "price", "status" ]
+      },
+      "QuoteRequest" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CartItem"
+            },
+            "maxItems" : 50,
+            "minItems" : 1
+          }
+        },
+        "required" : [ "items" ]
+      },
+      "QuotedItem" : {
+        "type" : "object",
+        "properties" : {
+          "available" : {
+            "type" : "boolean"
+          },
+          "name" : {
+            "type" : [ "string", "null" ]
+          },
+          "productId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "quantity" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "subtotal" : {
+            "type" : [ "number", "null" ]
+          },
+          "unitPrice" : {
+            "type" : [ "number", "null" ]
+          }
+        },
+        "required" : [ "available", "productId", "quantity" ]
       },
       "RegisterRequest" : {
         "type" : "object",

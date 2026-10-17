@@ -1,8 +1,10 @@
 package com.foody.api.shared.pagination;
 
+import com.foody.api.shared.persistence.PersistenceConstants;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort;
 
 public final class PaginationConstants {
 
@@ -25,6 +27,8 @@ public final class PaginationConstants {
 	public static final String ALLOWED_PAGE_SIZES_TEXT = ALLOWED_PAGE_SIZES.stream()
 		.map(String::valueOf)
 		.collect(Collectors.joining(LIST_DELIMITER));
+
+	public static final Sort TIEBREAKER_SORT = Sort.by(PersistenceConstants.ID_ATTRIBUTE);
 
 	private PaginationConstants() {
 	}

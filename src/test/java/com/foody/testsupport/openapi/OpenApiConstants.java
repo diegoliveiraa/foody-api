@@ -27,6 +27,12 @@ public final class OpenApiConstants {
 
 	public static final String NULL_TYPE = "null";
 
+	public static final String OPERATION_IDS_PATH = "$.paths.*.*.operationId";
+
+	public static final String OPERATION_ID_PATTERN = "[a-z][A-Za-z]*";
+
+	public static final String CONTROLLER_SUFFIX = "Controller";
+
 	public static final String PAGE_PARAMETER = "page";
 
 	public static final String SORT_PARAMETER = "sort";

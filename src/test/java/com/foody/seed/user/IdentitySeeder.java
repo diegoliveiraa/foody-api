@@ -3,6 +3,7 @@ package com.foody.seed.user;
 import com.foody.api.shared.security.Role;
 import com.foody.api.user.entity.User;
 import com.foody.api.user.repository.UserRepository;
+import com.foody.seed.SeedConstants;
 import com.foody.seed.SeedScale;
 import com.foody.seed.Seeder;
 import java.util.List;
@@ -51,7 +52,7 @@ public class IdentitySeeder implements Seeder {
 	}
 
 	private List<User> withSomeDisabled(List<User> customers) {
-		int disabledCount = customers.size() * UserSeedConstants.DISABLED_CUSTOMER_PERCENT / UserSeedConstants.PERCENT;
+		int disabledCount = customers.size() * UserSeedConstants.DISABLED_CUSTOMER_PERCENT / SeedConstants.PERCENT;
 		Stream.generate(() -> faker.random().nextInt(customers.size()))
 			.distinct()
 			.limit(disabledCount)

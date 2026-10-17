@@ -276,6 +276,9 @@ Every endpoint follows ADR-0005:
 - **Instants go out as ISO-8601 UTC, ids as UUID strings, money as decimal numbers.**
 - A DTO component that may be absent is annotated `@Nullable` (JSpecify); everything else is
   required in the contract (ADR-0018).
+- Every operation is published as `<controller><Method>` (`adminUserList`, `menuQuote`) and must be
+  unique — `OpenApiContractTest` fails on a duplicate (ADR-0021). Renaming a controller method
+  renames its operation in the front's generated types.
 - **Every response carries `X-Request-Id`, and every error body its `requestId`** (ADR-0010).
 - **`docs/openapi.json` is the published contract** (ADR-0008): `OpenApiContractTest` rewrites it
   on every test run. Commit it with the change that alters it; never edit it by hand.

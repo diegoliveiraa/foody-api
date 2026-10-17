@@ -12,8 +12,6 @@ public final class UserSeedConstants {
 
 	public static final int DISABLED_CUSTOMER_PERCENT = 5;
 
-	public static final int PERCENT = 100;
-
 	private UserSeedConstants() {
 	}
 

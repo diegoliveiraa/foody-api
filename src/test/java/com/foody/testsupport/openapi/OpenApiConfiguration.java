@@ -42,6 +42,11 @@ public class OpenApiConfiguration {
 	}
 
 	@Bean
+	OperationIdCustomizer operationIdCustomizer() {
+		return new OperationIdCustomizer();
+	}
+
+	@Bean
 	OperationCustomizer bearerOnProtectedOperations() {
 		return (operation, handlerMethod) -> {
 			if (!AnnotatedElementUtils.hasAnnotation(handlerMethod.getMethod(), PreAuthorize.class)) {

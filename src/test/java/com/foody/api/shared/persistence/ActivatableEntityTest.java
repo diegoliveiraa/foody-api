@@ -51,6 +51,19 @@ class ActivatableEntityTest {
 	}
 
 	@Test
+	void reportsTheDisabledAtTheDatabaseKeeps() {
+		SampleActivatableEntity saved = repository.saveAndFlush(new SampleActivatableEntity("supplier"));
+
+		saved.disable();
+		Instant reported = saved.getDisabledAt();
+		repository.saveAndFlush(saved);
+		entityManager.clear();
+
+		SampleActivatableEntity reloaded = repository.findById(saved.getId()).orElseThrow();
+		assertThat(reloaded.getDisabledAt()).isEqualTo(reported);
+	}
+
+	@Test
 	void clearsDisabledAtWhenEnabledAgain() {
 		SampleActivatableEntity saved = repository.saveAndFlush(new SampleActivatableEntity("supplier"));
 		saved.disable();

@@ -5,10 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.foody.api.auth.repository.RefreshTokenRepository;
 import com.foody.api.me.MeConstants;
 import com.foody.api.shared.message.Messages;
+import com.foody.api.shared.persistence.ActivationStatus;
+import com.foody.api.shared.route.RouteConstants;
 import com.foody.api.shared.security.Role;
 import com.foody.api.shared.util.HashUtils;
 import com.foody.api.user.UserConstants;
-import com.foody.api.user.dto.UserStatus;
 import com.foody.api.user.entity.User;
 import com.foody.api.user.repository.UserRepository;
 import com.foody.seed.user.UserFactory;
@@ -30,9 +31,9 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 @ApiIntegrationTest
 class DisableUserTest {
 
-	private static final String DISABLE_PATH = UserConstants.ADMIN_USERS_PATH + UserConstants.DISABLE_PATH;
+	private static final String DISABLE_PATH = UserConstants.ADMIN_USERS_PATH + RouteConstants.DISABLE_PATH;
 
-	private static final String ENABLE_PATH = UserConstants.ADMIN_USERS_PATH + UserConstants.ENABLE_PATH;
+	private static final String ENABLE_PATH = UserConstants.ADMIN_USERS_PATH + RouteConstants.ENABLE_PATH;
 
 	@Autowired
 	private MockMvcTester mvc;
@@ -64,7 +65,7 @@ class DisableUserTest {
 
 		assertThat(result).hasStatus(HttpStatus.OK);
 		assertThat(result).bodyJson().extractingPath("$.id").isEqualTo(customer.getId().toString());
-		assertThat(result).bodyJson().extractingPath("$.status").isEqualTo(UserStatus.DISABLED.name());
+		assertThat(result).bodyJson().extractingPath("$.status").isEqualTo(ActivationStatus.DISABLED.name());
 		assertThat(result).bodyJson().extractingPath("$.disabledAt").asString().isNotBlank();
 		assertThat(userRepository.findById(customer.getId())).map(User::isActive).contains(false);
 	}
@@ -126,7 +127,7 @@ class DisableUserTest {
 		MvcTestResult result = post(ENABLE_PATH, admin, disabled.getId());
 
 		assertThat(result).hasStatus(HttpStatus.OK);
-		assertThat(result).bodyJson().extractingPath("$.status").isEqualTo(UserStatus.ACTIVE.name());
+		assertThat(result).bodyJson().extractingPath("$.status").isEqualTo(ActivationStatus.ACTIVE.name());
 		assertThat(result).bodyJson().extractingPath("$.disabledAt").isNull();
 		assertThat(userRepository.findById(disabled.getId())).map(User::isActive).contains(true);
 	}
@@ -142,10 +143,10 @@ class DisableUserTest {
 		MvcTestResult enableAgain = post(ENABLE_PATH, admin, active.getId());
 
 		assertThat(disableAgain).hasStatus(HttpStatus.OK);
-		assertThat(disableAgain).bodyJson().extractingPath("$.status").isEqualTo(UserStatus.DISABLED.name());
+		assertThat(disableAgain).bodyJson().extractingPath("$.status").isEqualTo(ActivationStatus.DISABLED.name());
 		assertThat(userRepository.findById(disabled.getId())).map(User::getDisabledAt).contains(firstDisabledAt);
 		assertThat(enableAgain).hasStatus(HttpStatus.OK);
-		assertThat(enableAgain).bodyJson().extractingPath("$.status").isEqualTo(UserStatus.ACTIVE.name());
+		assertThat(enableAgain).bodyJson().extractingPath("$.status").isEqualTo(ActivationStatus.ACTIVE.name());
 		assertThat(userRepository.findById(active.getId())).map(User::getVersion).contains(active.getVersion());
 	}
 
