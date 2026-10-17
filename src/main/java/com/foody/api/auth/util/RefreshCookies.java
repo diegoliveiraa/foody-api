@@ -2,7 +2,7 @@ package com.foody.api.auth.util;
 
 import com.foody.api.auth.AuthConstants;
 import com.foody.api.auth.dto.IssuedRefreshToken;
-import com.foody.api.shared.security.SecurityConstants;
+import com.foody.api.shared.route.RouteConstants;
 import java.time.Duration;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseCookie.ResponseCookieBuilder;
@@ -25,7 +25,7 @@ public final class RefreshCookies {
 			.httpOnly(true)
 			.secure(true)
 			.sameSite(AuthConstants.REFRESH_COOKIE_SAME_SITE)
-			.path(SecurityConstants.AUTH_PATH);
+			.path(RouteConstants.AUTH_PATH);
 	}
 
 }

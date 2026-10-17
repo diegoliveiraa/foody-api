@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.foody.api.auth.AuthConstants;
 import com.foody.api.shared.message.Messages;
-import com.foody.api.shared.security.SecurityConstants;
+import com.foody.api.shared.route.RouteConstants;
 import com.foody.api.user.entity.User;
 import com.foody.seed.user.UserFactory;
 import com.foody.testsupport.api.ApiIntegrationTest;
@@ -45,7 +45,7 @@ class LoginTest {
 			.containsCookie(COOKIE)
 			.isHttpOnly(COOKIE, true)
 			.isSecure(COOKIE, true)
-			.hasPath(COOKIE, SecurityConstants.AUTH_PATH)
+			.hasPath(COOKIE, RouteConstants.AUTH_PATH)
 			.hasMaxAge(COOKIE, Duration.ofDays(7));
 	}
 

@@ -20,6 +20,10 @@ public final class AuthConstants {
 
 	public static final int PASSWORD_MAX_BYTES = 72;
 
+	public static final String REFRESH_TOKEN_CLEANUP_CRON = "${foody.security.refresh-token-cleanup.cron}";
+
+	public static final String EXPIRED_FAMILIES_DELETED_LOG = "Deleted {} refresh tokens of expired families";
+
 	private AuthConstants() {
 	}
 

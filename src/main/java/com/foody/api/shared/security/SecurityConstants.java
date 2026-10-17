@@ -8,18 +8,6 @@ import org.springframework.http.HttpMethod;
 
 public final class SecurityConstants {
 
-	public static final String AUTH_PATH = "/auth";
-
-	public static final String REGISTER_PATH = AUTH_PATH + "/register";
-
-	public static final String LOGIN_PATH = AUTH_PATH + "/login";
-
-	public static final String REFRESH_PATH = AUTH_PATH + "/refresh";
-
-	public static final String LOGOUT_PATH = AUTH_PATH + "/logout";
-
-	public static final String HEALTH_PATH_PATTERN = "/actuator/health/**";
-
 	public static final String JWT_PROPERTIES_PREFIX = "foody.security.jwt";
 
 	public static final String JWT_PUBLIC_KEY_PROPERTY = JWT_PROPERTIES_PREFIX + ".public-key";

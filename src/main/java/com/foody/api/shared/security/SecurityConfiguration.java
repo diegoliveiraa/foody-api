@@ -1,5 +1,8 @@
 package com.foody.api.shared.security;
 
+import com.foody.api.shared.ratelimit.RateLimitFilter;
+import com.foody.api.shared.route.RouteConstants;
+import com.foody.api.shared.ratelimit.RateLimiter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,6 +17,7 @@ import org.springframework.security.core.annotation.AnnotationTemplateExpression
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -40,7 +44,7 @@ public class SecurityConfiguration {
 
 	@Bean
 	SecurityFilterChain apiSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder, ActiveUserLookup activeUsers,
-			CorsProperties corsProperties,
+			CorsProperties corsProperties, RateLimiter rateLimiter,
 			@Qualifier(DispatcherServlet.HANDLER_EXCEPTION_RESOLVER_BEAN_NAME) HandlerExceptionResolver exceptionResolver) {
 		AuthenticationEntryPoint entryPoint = (request, response, exception) -> exceptionResolver
 			.resolveException(request, response, null, exception);
@@ -52,10 +56,10 @@ public class SecurityConfiguration {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(requests -> requests.dispatcherTypeMatchers(DispatcherType.ERROR)
 				.permitAll()
-				.requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH, SecurityConstants.LOGIN_PATH,
-						SecurityConstants.REFRESH_PATH, SecurityConstants.LOGOUT_PATH)
+				.requestMatchers(HttpMethod.POST, RouteConstants.REGISTER_PATH, RouteConstants.LOGIN_PATH,
+						RouteConstants.REFRESH_PATH, RouteConstants.LOGOUT_PATH)
 				.permitAll()
-				.requestMatchers(HttpMethod.GET, SecurityConstants.HEALTH_PATH_PATTERN)
+				.requestMatchers(HttpMethod.GET, RouteConstants.HEALTH_PATH_PATTERN)
 				.permitAll()
 				.anyRequest()
 				.authenticated())
@@ -64,6 +68,7 @@ public class SecurityConfiguration {
 					.jwtAuthenticationConverter(new AuthenticatedUserConverter(activeUsers)))
 				.authenticationEntryPoint(entryPoint)
 				.accessDeniedHandler(accessDeniedHandler))
+			.addFilterAfter(new RateLimitFilter(rateLimiter, exceptionResolver), BearerTokenAuthenticationFilter.class)
 			.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(entryPoint)
 				.accessDeniedHandler(accessDeniedHandler));
 		return http.build();

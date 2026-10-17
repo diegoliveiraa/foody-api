@@ -25,6 +25,8 @@ public final class OpenApiConstants {
 
 	public static final String LINE_BREAK = "\n";
 
+	public static final String NULL_TYPE = "null";
+
 	private OpenApiConstants() {
 	}
 

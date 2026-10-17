@@ -32,6 +32,11 @@ public class OpenApiConfiguration {
 	}
 
 	@Bean
+	RequiredByDefaultModelConverter requiredByDefaultModelConverter() {
+		return new RequiredByDefaultModelConverter();
+	}
+
+	@Bean
 	OperationCustomizer bearerOnProtectedOperations() {
 		return (operation, handlerMethod) -> {
 			if (!AnnotatedElementUtils.hasAnnotation(handlerMethod.getMethod(), PreAuthorize.class)) {

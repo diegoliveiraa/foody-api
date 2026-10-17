@@ -6,6 +6,7 @@ import com.foody.api.auth.dto.RegisterRequest;
 import com.foody.api.auth.dto.RotatedRefreshToken;
 import com.foody.api.auth.exception.EmailAlreadyRegisteredException;
 import com.foody.api.auth.exception.InvalidCredentialsException;
+import com.foody.api.shared.ratelimit.RateLimiter;
 import com.foody.api.user.entity.User;
 import com.foody.api.user.service.UserService;
 import java.util.Optional;
@@ -25,14 +26,17 @@ public class AuthService {
 
 	private final RefreshTokenService refreshTokens;
 
+	private final RateLimiter rateLimiter;
+
 	private final String unknownUserPasswordHash;
 
 	public AuthService(UserService userService, PasswordEncoder passwordEncoder, AccessTokenService accessTokens,
-			RefreshTokenService refreshTokens) {
+			RefreshTokenService refreshTokens, RateLimiter rateLimiter) {
 		this.userService = userService;
 		this.passwordEncoder = passwordEncoder;
 		this.accessTokens = accessTokens;
 		this.refreshTokens = refreshTokens;
+		this.rateLimiter = rateLimiter;
 		this.unknownUserPasswordHash = passwordEncoder.encode(UUID.randomUUID().toString());
 	}
 
@@ -47,7 +51,8 @@ public class AuthService {
 	}
 
 	@Transactional
-	public AuthSession login(LoginRequest request) {
+	public AuthSession login(LoginRequest request, String clientAddress) {
+		rateLimiter.consumeLoginAttempt(request.email(), clientAddress);
 		Optional<User> candidate = userService.findByEmail(request.email());
 		String passwordHash = candidate.map(User::getPasswordHash).orElse(unknownUserPasswordHash);
 		boolean passwordMatches = passwordEncoder.matches(request.password(), passwordHash);

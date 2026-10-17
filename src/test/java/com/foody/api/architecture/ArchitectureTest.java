@@ -5,6 +5,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
 import com.foody.api.shared.exception.GlobalExceptionHandler;
 import com.foody.api.shared.persistence.BaseEntity;
@@ -108,6 +109,16 @@ class ArchitectureTest {
 		.should()
 		.beMetaAnnotatedWith(PreAuthorize.class)
 		.allowEmptyShould(true);
+
+	@ArchTest
+	static final ArchRule featurePackagesAreFreeOfCycles = slices().matching(ArchitectureConstants.FEATURE_SLICES)
+		.should()
+		.beFreeOfCycles();
+
+	@ArchTest
+	static final ArchRule sharedPackagesAreFreeOfCycles = slices().matching(ArchitectureConstants.SHARED_SLICES)
+		.should()
+		.beFreeOfCycles();
 
 	@ArchTest
 	static final ArchRule noStandardStreams = GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS;

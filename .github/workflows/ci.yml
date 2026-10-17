@@ -42,6 +42,17 @@ jobs:
         run: bash scripts/generate-jwt-keys.sh
       - name: Build the image and start the deploy stack
         run: docker compose -f compose.deploy.yaml up -d --build --wait --wait-timeout 300
+      - name: Smoke test registers a customer and reads /me
+        shell: bash
+        run: |
+          base_url="http://127.0.0.1:8080"
+          body=$(jq -n --arg email "smoke-${GITHUB_RUN_ID}@foody.dev" --arg password "$(openssl rand -hex 16)" \
+            '{name: "Smoke Test", email: $email, password: $password}')
+          token=$(curl -fsS -X POST "$base_url/auth/register" -H 'Content-Type: application/json' -d "$body" \
+            | jq -er '.accessToken')
+          status=$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $token" "$base_url/me")
+          echo "GET /me answered $status"
+          test "$status" = "200"
       - name: Logs on failure
         if: failure()
         run: docker compose -f compose.deploy.yaml logs

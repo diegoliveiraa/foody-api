@@ -65,6 +65,11 @@ public class RefreshTokenService {
 		find(presentedValue).ifPresent(token -> revokeFamily(token.getFamilyId(), now));
 	}
 
+	@Transactional
+	public int deleteExpiredFamilies() {
+		return repository.deleteFamiliesExpiredBefore(clock.instant());
+	}
+
 	private Optional<RefreshToken> find(String presentedValue) {
 		return Optional.ofNullable(presentedValue).map(HashUtils::sha256Hex).flatMap(repository::findByTokenHash);
 	}

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.foody.api.auth.AuthConstants;
 import com.foody.api.auth.repository.RefreshTokenRepository;
-import com.foody.api.shared.security.SecurityConstants;
+import com.foody.api.shared.route.RouteConstants;
 import com.foody.api.shared.util.HashUtils;
 import com.foody.seed.user.UserFactory;
 import com.foody.testsupport.api.ApiIntegrationTest;
@@ -47,7 +47,7 @@ class LogoutTest {
 		assertThat(result).cookies()
 			.hasValue(COOKIE, AuthConstants.CLEARED_COOKIE_VALUE)
 			.hasMaxAge(COOKIE, Duration.ZERO)
-			.hasPath(COOKIE, SecurityConstants.AUTH_PATH)
+			.hasPath(COOKIE, RouteConstants.AUTH_PATH)
 			.isHttpOnly(COOKIE, true)
 			.isSecure(COOKIE, true);
 		assertThat(refreshTokens.findByTokenHash(HashUtils.sha256Hex(rotatedToken)).orElseThrow().isRevoked()).isTrue();

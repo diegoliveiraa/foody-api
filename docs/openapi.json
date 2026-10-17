@@ -143,7 +143,8 @@
             "type" : "integer",
             "format" : "int64"
           }
-        }
+        },
+        "required" : [ "accessToken", "expiresIn" ]
       },
       "LoginRequest" : {
         "type" : "object",
@@ -175,7 +176,8 @@
               "$ref" : "#/components/schemas/MeScreen"
             }
           }
-        }
+        },
+        "required" : [ "key", "label", "screens" ]
       },
       "MeResponse" : {
         "type" : "object",
@@ -189,7 +191,8 @@
           "user" : {
             "$ref" : "#/components/schemas/MeUser"
           }
-        }
+        },
+        "required" : [ "modules", "user" ]
       },
       "MeScreen" : {
         "type" : "object",
@@ -207,7 +210,8 @@
           "label" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "actions", "key", "label" ]
       },
       "MeUser" : {
         "type" : "object",
@@ -222,7 +226,8 @@
           "name" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "email", "id", "name" ]
       },
       "RegisterRequest" : {
         "type" : "object",

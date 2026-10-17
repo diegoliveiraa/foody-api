@@ -221,6 +221,8 @@ Authentication follows ADR-0002 and ADR-0013:
   `/auth/login` and `/auth/refresh` return.
 - Refresh tokens are stored only as hashes. Passwords go through Spring Security's
   `PasswordEncoder`, never a hand-rolled hash.
+- Rate limits are declared in `foody.rate-limit.*` and enforced by the filter in `shared.ratelimit`
+  (ADR-0017); a new endpoint that needs its own limit adds a policy there.
 - Signing keys and secrets come from configuration outside the repository — nothing secret is
   committed, not even for local use.
 
@@ -268,6 +270,8 @@ Every endpoint follows ADR-0005:
   `PageResponse.of(page)`. Page sizes are 10, 25, 50 or 100 (`PaginationConstants`); never return
   an unpaginated list of a table that grows.
 - **Instants go out as ISO-8601 UTC, ids as UUID strings, money as decimal numbers.**
+- A DTO component that may be absent is annotated `@Nullable` (JSpecify); everything else is
+  required in the contract (ADR-0018).
 - **Every response carries `X-Request-Id`, and every error body its `requestId`** (ADR-0010).
 - **`docs/openapi.json` is the published contract** (ADR-0008): `OpenApiContractTest` rewrites it
   on every test run. Commit it with the change that alters it; never edit it by hand.
@@ -302,7 +306,9 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
   `SEED_CUSTOMER_EMAIL` for one staff and one customer, and `SEED_DEFAULT_PASSWORD` for everyone but
   the admin — 4 more staff and 50 customers per scale unit. Without them `test-run` refuses to
   start. Seeders skip tables that already have data — for a fresh start, `docker compose down` and
-  remove the `foody-local_postgres-data` volume. Swagger UI is there too, at
+  remove the `foody-local_postgres-data` volume. The seed profile raises every rate limit
+  (`rate-limit-generous.properties`, also used by `@ApiIntegrationTest`), so local exploration and
+  E2E runs are never throttled. Swagger UI is there too, at
   `http://localhost:8080/swagger-ui.html` — and only there: springdoc is a test dependency.
 - **Image:** `docker build -t foody-api .` (ADR-0004). **Deploy:**
   `docker compose -f compose.deploy.yaml up -d`, with the `.env` on the host and the key pair in
@@ -318,7 +324,7 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
 `./mvnw verify` · `bash scripts/check-comments.sh` — the same gates CI runs (ADR-0009). `verify`
 must end in `BUILD SUCCESS`; it checks the format (fix it with `./mvnw spring-javaformat:apply`),
 runs the tests and the architecture rules in `ArchitectureTest` (layers, packages, entities,
-exception handling, protected controllers, standard streams, field injection) and rewrites
+exception handling, protected controllers, package cycles, standard streams, field injection) and rewrites
 `docs/openapi.json`. Docker
 must be running: database tests use Testcontainers (R18). Changed a dependency or the `Dockerfile`?
 Also bring up `compose.deploy.yaml` and wait for the API to report healthy — a JDK module that

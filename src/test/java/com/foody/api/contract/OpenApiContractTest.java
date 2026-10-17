@@ -55,4 +55,32 @@ class OpenApiContractTest {
 		assertThat(result).bodyJson().doesNotHavePath("$.paths['/auth/login'].post.security");
 	}
 
+	@Test
+	void requiresEveryComponentOfTheAuthResponse() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.AuthResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("accessToken", "expiresIn");
+	}
+
+	@Test
+	void requiresEveryComponentOfTheMeResponseAndItsScreens() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.MeResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("user", "modules");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.MeScreen.required")
+			.asArray()
+			.containsExactlyInAnyOrder("key", "label", "actions");
+	}
+
 }

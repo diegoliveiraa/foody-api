@@ -1,7 +1,8 @@
 package com.foody.testsupport.security;
 
 import com.foody.api.auth.AuthConstants;
-import com.foody.api.shared.security.SecurityConstants;
+import com.foody.api.shared.route.RouteConstants;
+import com.foody.testsupport.api.RemoteAddress;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
 import java.io.UnsupportedEncodingException;
@@ -28,19 +29,25 @@ public class AuthClient {
 	}
 
 	public MvcTestResult login(String email, String password) {
-		return mvc.post()
-			.uri(SecurityConstants.LOGIN_PATH)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(LOGIN_REQUEST.formatted(email, password))
-			.exchange();
+		return loginRequest(email, password).exchange();
+	}
+
+	public MvcTestResult loginFrom(String remoteAddress, String email, String password) {
+		return loginRequest(email, password).with(RemoteAddress.of(remoteAddress)).exchange();
 	}
 
 	public MvcTestResult refresh(String refreshToken) {
-		return withRefreshCookie(mvc.post().uri(SecurityConstants.REFRESH_PATH), refreshToken).exchange();
+		return withRefreshCookie(mvc.post().uri(RouteConstants.REFRESH_PATH), refreshToken).exchange();
+	}
+
+	public MvcTestResult refreshFrom(String remoteAddress, String refreshToken) {
+		return withRefreshCookie(mvc.post().uri(RouteConstants.REFRESH_PATH), refreshToken)
+			.with(RemoteAddress.of(remoteAddress))
+			.exchange();
 	}
 
 	public MvcTestResult logout(String refreshToken) {
-		return withRefreshCookie(mvc.post().uri(SecurityConstants.LOGOUT_PATH), refreshToken).exchange();
+		return withRefreshCookie(mvc.post().uri(RouteConstants.LOGOUT_PATH), refreshToken).exchange();
 	}
 
 	public String refreshTokenOf(MvcTestResult result) {
@@ -54,6 +61,13 @@ public class AuthClient {
 		catch (UnsupportedEncodingException exception) {
 			throw new IllegalStateException(exception);
 		}
+	}
+
+	private MockMvcRequestBuilder loginRequest(String email, String password) {
+		return mvc.post()
+			.uri(RouteConstants.LOGIN_PATH)
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(LOGIN_REQUEST.formatted(email, password));
 	}
 
 	private MockMvcRequestBuilder withRefreshCookie(MockMvcRequestBuilder request, String refreshToken) {

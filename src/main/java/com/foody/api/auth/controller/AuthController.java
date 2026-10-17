@@ -7,7 +7,8 @@ import com.foody.api.auth.dto.LoginRequest;
 import com.foody.api.auth.dto.RegisterRequest;
 import com.foody.api.auth.service.AuthService;
 import com.foody.api.auth.util.RefreshCookies;
-import com.foody.api.shared.security.SecurityConstants;
+import com.foody.api.shared.route.RouteConstants;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,24 +28,25 @@ public class AuthController {
 		this.authService = authService;
 	}
 
-	@PostMapping(SecurityConstants.REGISTER_PATH)
+	@PostMapping(RouteConstants.REGISTER_PATH)
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
 		return withRefreshCookie(HttpStatus.CREATED, authService.register(request));
 	}
 
-	@PostMapping(SecurityConstants.LOGIN_PATH)
-	public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-		return withRefreshCookie(HttpStatus.OK, authService.login(request));
+	@PostMapping(RouteConstants.LOGIN_PATH)
+	public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
+			HttpServletRequest servletRequest) {
+		return withRefreshCookie(HttpStatus.OK, authService.login(request, servletRequest.getRemoteAddr()));
 	}
 
-	@PostMapping(SecurityConstants.REFRESH_PATH)
+	@PostMapping(RouteConstants.REFRESH_PATH)
 	public ResponseEntity<AuthResponse> refresh(
 			@CookieValue(name = AuthConstants.REFRESH_COOKIE_NAME, required = false) String refreshToken) {
 		return withRefreshCookie(HttpStatus.OK, authService.refresh(refreshToken));
 	}
 
-	@PostMapping(SecurityConstants.LOGOUT_PATH)
+	@PostMapping(RouteConstants.LOGOUT_PATH)
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<Void> logout(
 			@CookieValue(name = AuthConstants.REFRESH_COOKIE_NAME, required = false) String refreshToken) {

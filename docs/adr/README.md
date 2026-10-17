@@ -91,3 +91,5 @@ needs migration, rework or monitoring.
 | [ADR-0014](./0014-render-security-failures-and-rate-limits-as-problem-details.md) | 2026-10-16 | Render security failures and rate limits as Problem Details | Accepted |
 | [ADR-0015](./0015-load-jwt-signing-keys-from-pem-files-mounted-as-secrets.md) | 2026-10-16 | Load JWT signing keys from PEM files mounted as secrets | Accepted |
 | [ADR-0016](./0016-read-time-from-an-injected-clock.md) | 2026-10-16 | Read time from an injected Clock | Accepted |
+| [ADR-0017](./0017-rate-limit-in-memory-with-bucket4j.md) | 2026-10-16 | Rate limit in memory with Bucket4j | Accepted |
+| [ADR-0018](./0018-every-contract-field-is-required-unless-marked-nullable.md) | 2026-10-16 | Every contract field is required unless marked @Nullable | Accepted |

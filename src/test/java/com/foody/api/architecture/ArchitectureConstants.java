@@ -18,6 +18,10 @@ public final class ArchitectureConstants {
 
 	public static final String AUTH_CONTROLLER_PACKAGE = "..auth.controller..";
 
+	public static final String FEATURE_SLICES = BASE_PACKAGE + ".(*)..";
+
+	public static final String SHARED_SLICES = BASE_PACKAGE + ".shared.(*)..";
+
 	private ArchitectureConstants() {
 	}
 

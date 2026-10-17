@@ -7,7 +7,7 @@ import com.foody.api.me.MeConstants;
 import com.foody.api.shared.exception.ErrorConstants;
 import com.foody.api.shared.message.Messages;
 import com.foody.api.shared.security.Role;
-import com.foody.api.shared.security.SecurityConstants;
+import com.foody.api.shared.route.RouteConstants;
 import com.foody.api.user.entity.User;
 import com.foody.api.user.repository.UserRepository;
 import com.foody.seed.user.UserFactory;
@@ -65,7 +65,7 @@ class RegisterTest {
 			.containsCookie(COOKIE)
 			.isHttpOnly(COOKIE, true)
 			.isSecure(COOKIE, true)
-			.hasPath(COOKIE, SecurityConstants.AUTH_PATH)
+			.hasPath(COOKIE, RouteConstants.AUTH_PATH)
 			.hasMaxAge(COOKIE, Duration.ofDays(7));
 		assertThat(result.getResponse().getHeader(HttpHeaders.SET_COOKIE)).contains("SameSite=Strict");
 		User created = userRepository.findByEmail("ana.souza.register@foody.dev").orElseThrow();
@@ -166,7 +166,7 @@ class RegisterTest {
 
 	private MvcTestResult register(String body) {
 		return mvc.post()
-			.uri(SecurityConstants.REGISTER_PATH)
+			.uri(RouteConstants.REGISTER_PATH)
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(body)
 			.exchange();
