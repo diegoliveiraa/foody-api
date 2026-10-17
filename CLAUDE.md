@@ -146,8 +146,9 @@ orchestrator plus sub-services; it does not become a 40-method class.
 
 A feature that must react to another one's change listens to a domain event the other publishes
 (ADR-0019); a feature that must ask another one a question declares it as an interface in its own
-package, and the feature that owns the data implements it (ADR-0023). Feature packages never depend
-on each other in both directions — `ArchitectureTest` checks it.
+package, and the feature that owns the data implements it (ADR-0023) — only when the owner already
+depends on the asker; otherwise the asker calls the owner's service, never its repository. Feature
+packages never depend on each other in both directions — `ArchitectureTest` checks it.
 
 ### R10 — No `System.out` / `System.err` / `printStackTrace()`
 

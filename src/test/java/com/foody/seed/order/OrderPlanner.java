@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -51,13 +52,20 @@ public class OrderPlanner {
 	private List<OrderPlan> olderPlans(SeedScale scale, Instant now, int count, int fixedCustomerCount) {
 		int approved = scale.of(OrderSeedConstants.APPROVED_REQUESTS_BASE);
 		int declined = scale.of(OrderSeedConstants.DECLINED_REQUESTS_BASE);
-		int regular = Math.max(0, count - fixedCustomerCount - approved - declined);
-		return Stream.of(Stream.generate(() -> olderPlan(now, olderOutcome(), true, null)).limit(fixedCustomerCount),
-				Stream.generate(() -> olderPlan(now, OrderStatus.CANCELLED, false, CancellationRequestStatus.APPROVED))
-					.limit(approved),
-				Stream.generate(() -> olderPlan(now, OrderStatus.DELIVERED, false, CancellationRequestStatus.DECLINED))
-					.limit(declined),
-				Stream.generate(() -> olderPlan(now, olderOutcome(), false, null)).limit(regular))
+		int yesterday = scale.of(OrderSeedConstants.YESTERDAY_ORDERS_BASE);
+		int regular = Math.max(0, count - fixedCustomerCount - approved - declined - yesterday);
+		return Stream
+			.of(Stream.generate(() -> olderPlan(now, olderOutcome(), true, null)).limit(fixedCustomerCount),
+					Stream
+						.generate(
+								() -> olderPlan(now, OrderStatus.CANCELLED, false, CancellationRequestStatus.APPROVED))
+						.limit(approved),
+					Stream
+						.generate(
+								() -> olderPlan(now, OrderStatus.DELIVERED, false, CancellationRequestStatus.DECLINED))
+						.limit(declined),
+					Stream.generate(() -> yesterdayPlan(now)).limit(yesterday),
+					Stream.generate(() -> olderPlan(now, olderOutcome(), false, null)).limit(regular))
 			.flatMap(Function.identity())
 			.toList();
 	}
@@ -74,6 +82,23 @@ public class OrderPlanner {
 			.findFirst()
 			.orElseThrow();
 		return new OrderPlan(placedAt, outcome, forFixedCustomer, cancellationRequest);
+	}
+
+	private OrderPlan yesterdayPlan(Instant now) {
+		ZonedDateTime sameTimeYesterday = now.atZone(zone).minusDays(1);
+		LocalTime time = timeBefore(sameTimeYesterday.toLocalTime());
+		return new OrderPlan(sameTimeYesterday.with(time).toInstant(), olderOutcome(), false, null);
+	}
+
+	private LocalTime timeBefore(LocalTime limit) {
+		LocalTime drawn = DayPart.drawTime(faker);
+		if (drawn.isBefore(limit)) {
+			return drawn;
+		}
+		if (limit.equals(LocalTime.MIDNIGHT)) {
+			return LocalTime.MIDNIGHT;
+		}
+		return LocalTime.ofSecondOfDay(faker.number().numberBetween(0, limit.toSecondOfDay()));
 	}
 
 	private OrderStatus olderOutcome() {

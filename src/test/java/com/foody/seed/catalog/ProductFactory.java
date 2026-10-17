@@ -1,9 +1,9 @@
 package com.foody.seed.catalog;
 
-import com.foody.api.catalog.CatalogConstants;
 import com.foody.api.catalog.entity.Category;
 import com.foody.api.catalog.entity.Product;
 import com.foody.api.catalog.repository.ProductRepository;
+import com.foody.api.shared.money.MoneyConstants;
 import com.foody.seed.EntityFactory;
 import java.math.BigDecimal;
 import java.util.Locale;
@@ -73,7 +73,7 @@ public class ProductFactory extends EntityFactory<Product> {
 	private BigDecimal fakePrice() {
 		int cents = faker.number()
 			.numberBetween(CatalogSeedConstants.FACTORY_MIN_PRICE_CENTS, CatalogSeedConstants.FACTORY_MAX_PRICE_CENTS);
-		return BigDecimal.valueOf(cents, CatalogConstants.PRICE_SCALE);
+		return BigDecimal.valueOf(cents, MoneyConstants.SCALE);
 	}
 
 }

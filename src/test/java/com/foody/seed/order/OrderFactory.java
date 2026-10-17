@@ -78,6 +78,12 @@ public class OrderFactory extends EntityFactory<Order> {
 		return save(order);
 	}
 
+	public Order create(User customer, List<CartItem> items, Instant placedAt, Consumer<Order> customizer) {
+		Order order = build(customer, items, deliveryAddress(), placedAt);
+		customizer.accept(order);
+		return save(order);
+	}
+
 	public Order create(User customer, Product product) {
 		return save(build(customer, List.of(new CartItem(product.getId(), quantity())), deliveryAddress(), now()));
 	}

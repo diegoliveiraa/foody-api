@@ -348,6 +348,110 @@ class OpenApiContractTest {
 	}
 
 	@Test
+	void publishesTheDashboardOverviewNamedAfterItsController() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/dashboard'].get.operationId")
+			.isEqualTo("dashboardOverview");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/dashboard'].get.parameters[*].name")
+			.asArray()
+			.containsExactly("period");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/dashboard'].get.parameters[0].required")
+			.isEqualTo(false);
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/dashboard'].get.parameters[0].schema.default")
+			.isEqualTo("TODAY");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/dashboard'].get.parameters[0].schema.enum")
+			.asArray()
+			.containsExactly("TODAY", "LAST_7_DAYS", "LAST_30_DAYS");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/dashboard'].get.security[0]")
+			.asMap()
+			.containsOnlyKeys(OpenApiConstants.BEARER_SCHEME);
+	}
+
+	@Test
+	void requiresEveryDashboardComponentButTheNullableOnes() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("period", "timeZone", "generatedAt", "orders", "revenue", "ordersOverTime",
+					"topProducts", "activeByStatus", "averageStageMinutes", "cancellations",
+					"pendingCancellationRequests");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardResponse.properties.averageTicket.type")
+			.asArray()
+			.containsExactlyInAnyOrder("number", "null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardResponse.properties.period.enum")
+			.asArray()
+			.containsExactly("TODAY", "LAST_7_DAYS", "LAST_30_DAYS");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardOrders.required")
+			.asArray()
+			.containsExactlyInAnyOrder("count", "previousCount");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardOrders.properties.changePercent.type")
+			.asArray()
+			.containsExactlyInAnyOrder("number", "null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardOrdersOverTime.required")
+			.asArray()
+			.containsExactlyInAnyOrder("granularity", "points");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardOrdersOverTime.properties.granularity.enum")
+			.asArray()
+			.containsExactly("HOUR", "DAY");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardBucket.required")
+			.asArray()
+			.containsExactlyInAnyOrder("bucketStart", "count");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardTopProduct.required")
+			.asArray()
+			.containsExactlyInAnyOrder("productId", "name", "quantity", "revenue");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardActiveOrders.required")
+			.asArray()
+			.containsExactlyInAnyOrder("received", "preparing", "outForDelivery");
+		assertThat(result).bodyJson().doesNotHavePath("$.components.schemas.DashboardStageMinutes.required");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardStageMinutes.properties.receivedToPreparing.type")
+			.asArray()
+			.containsExactlyInAnyOrder("integer", "null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardCancellations.required")
+			.asArray()
+			.containsExactlyInAnyOrder("count", "byReason");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardCancellations.properties.ratePercent.type")
+			.asArray()
+			.containsExactlyInAnyOrder("number", "null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardCancellationCount.required")
+			.asArray()
+			.containsExactlyInAnyOrder("reason", "cancelledBy", "count");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardPendingRequests.required")
+			.asArray()
+			.containsExactlyInAnyOrder("count", "items");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.DashboardPendingRequest.required")
+			.asArray()
+			.containsExactlyInAnyOrder("orderId", "number", "requestedAt");
+	}
+
+	@Test
 	void publishesThePaginationParametersTheApiReads() {
 		String path = OpenApiConstants.DOCS_PATH;
 

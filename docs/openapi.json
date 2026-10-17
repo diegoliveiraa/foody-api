@@ -685,6 +685,37 @@
         "tags" : [ "product-controller" ]
       }
     },
+    "/dashboard" : {
+      "get" : {
+        "operationId" : "dashboardOverview",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "period",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "TODAY",
+            "enum" : [ "TODAY", "LAST_7_DAYS", "LAST_30_DAYS" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DashboardResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "dashboard-controller" ]
+      }
+    },
     "/me" : {
       "get" : {
         "operationId" : "meGet",
@@ -1551,6 +1582,226 @@
           }
         },
         "required" : [ "id", "items", "live", "number", "placedAt", "status", "total" ]
+      },
+      "DashboardActiveOrders" : {
+        "type" : "object",
+        "properties" : {
+          "outForDelivery" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "preparing" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "received" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "outForDelivery", "preparing", "received" ]
+      },
+      "DashboardBucket" : {
+        "type" : "object",
+        "properties" : {
+          "bucketStart" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "bucketStart", "count" ]
+      },
+      "DashboardCancellationCount" : {
+        "type" : "object",
+        "properties" : {
+          "cancelledBy" : {
+            "type" : "string",
+            "enum" : [ "CUSTOMER", "RESTAURANT" ]
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "reason" : {
+            "type" : "string",
+            "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+          }
+        },
+        "required" : [ "cancelledBy", "count", "reason" ]
+      },
+      "DashboardCancellations" : {
+        "type" : "object",
+        "properties" : {
+          "byReason" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DashboardCancellationCount"
+            }
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ratePercent" : {
+            "type" : [ "number", "null" ]
+          }
+        },
+        "required" : [ "byReason", "count" ]
+      },
+      "DashboardOrders" : {
+        "type" : "object",
+        "properties" : {
+          "changePercent" : {
+            "type" : [ "number", "null" ]
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "previousCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "count", "previousCount" ]
+      },
+      "DashboardOrdersOverTime" : {
+        "type" : "object",
+        "properties" : {
+          "granularity" : {
+            "type" : "string",
+            "enum" : [ "HOUR", "DAY" ]
+          },
+          "points" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DashboardBucket"
+            }
+          }
+        },
+        "required" : [ "granularity", "points" ]
+      },
+      "DashboardPendingRequest" : {
+        "type" : "object",
+        "properties" : {
+          "number" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "orderId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "requestedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "number", "orderId", "requestedAt" ]
+      },
+      "DashboardPendingRequests" : {
+        "type" : "object",
+        "properties" : {
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DashboardPendingRequest"
+            }
+          }
+        },
+        "required" : [ "count", "items" ]
+      },
+      "DashboardResponse" : {
+        "type" : "object",
+        "properties" : {
+          "activeByStatus" : {
+            "$ref" : "#/components/schemas/DashboardActiveOrders"
+          },
+          "averageStageMinutes" : {
+            "$ref" : "#/components/schemas/DashboardStageMinutes"
+          },
+          "averageTicket" : {
+            "type" : [ "number", "null" ]
+          },
+          "cancellations" : {
+            "$ref" : "#/components/schemas/DashboardCancellations"
+          },
+          "generatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "orders" : {
+            "$ref" : "#/components/schemas/DashboardOrders"
+          },
+          "ordersOverTime" : {
+            "$ref" : "#/components/schemas/DashboardOrdersOverTime"
+          },
+          "pendingCancellationRequests" : {
+            "$ref" : "#/components/schemas/DashboardPendingRequests"
+          },
+          "period" : {
+            "type" : "string",
+            "enum" : [ "TODAY", "LAST_7_DAYS", "LAST_30_DAYS" ]
+          },
+          "revenue" : {
+            "type" : "number"
+          },
+          "timeZone" : {
+            "type" : "string"
+          },
+          "topProducts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DashboardTopProduct"
+            }
+          }
+        },
+        "required" : [ "activeByStatus", "averageStageMinutes", "cancellations", "generatedAt", "orders", "ordersOverTime", "pendingCancellationRequests", "period", "revenue", "timeZone", "topProducts" ]
+      },
+      "DashboardStageMinutes" : {
+        "type" : "object",
+        "properties" : {
+          "outForDeliveryToDelivered" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "preparingToOutForDelivery" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          },
+          "receivedToPreparing" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int64"
+          }
+        }
+      },
+      "DashboardTopProduct" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "productId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "quantity" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "revenue" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "name", "productId", "quantity", "revenue" ]
       },
       "DeliveryAddressRequest" : {
         "type" : "object",

@@ -6,7 +6,9 @@ import com.foody.api.order.entity.CancellationRequestStatus;
 import com.foody.api.order.entity.OrderStatus;
 import com.foody.seed.SeedConstants;
 import com.foody.seed.SeedScale;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,10 @@ class OrderPlannerTest {
 	private static final long RANDOM_SEED = 42;
 
 	private static final ZoneId SAO_PAULO = ZoneId.of("America/Sao_Paulo");
+
+	private static final int LAST_THIRTY_DAYS = 30;
+
+	private static final int MIN_ORDERS_BEFORE_LAST_THIRTY_DAYS = 20;
 
 	@ParameterizedTest
 	@EnumSource(SeedScale.class)
@@ -74,6 +80,36 @@ class OrderPlannerTest {
 		assertThat(fixedCustomerPlans).extracting(OrderPlan::outcome)
 			.filteredOn(OrderStatus::isActive)
 			.containsExactlyInAnyOrder(OrderStatus.RECEIVED, OrderStatus.PREPARING);
+	}
+
+	@Test
+	void yesterdayHasOrdersBeforeTheCurrentTimeOfDay() {
+		OrderPlanner planner = new OrderPlanner(new Faker(SeedConstants.LOCALE, new Random(RANDOM_SEED)), SAO_PAULO);
+
+		List<OrderPlan> plans = planner.plan(SeedScale.SMALL, NOW);
+
+		Instant yesterdayStart = LocalDate.ofInstant(NOW, SAO_PAULO).minusDays(1).atStartOfDay(SAO_PAULO).toInstant();
+		Instant sameTimeYesterday = NOW.atZone(SAO_PAULO).minusDays(1).toInstant();
+		assertThat(plans)
+			.filteredOn(
+					plan -> !plan.placedAt().isBefore(yesterdayStart) && plan.placedAt().isBefore(sameTimeYesterday))
+			.hasSizeGreaterThanOrEqualTo(OrderSeedConstants.YESTERDAY_ORDERS_BASE);
+	}
+
+	@Test
+	void historyAlsoFillsTheThirtyDaysBeforeTheLastThirty() {
+		OrderPlanner planner = new OrderPlanner(new Faker(SeedConstants.LOCALE, new Random(RANDOM_SEED)), SAO_PAULO);
+
+		List<OrderPlan> plans = planner.plan(SeedScale.SMALL, NOW);
+
+		Instant lastThirtyDaysStart = LocalDate.ofInstant(NOW, SAO_PAULO)
+			.minusDays(LAST_THIRTY_DAYS - 1)
+			.atStartOfDay(SAO_PAULO)
+			.toInstant();
+		assertThat(plans).filteredOn(plan -> plan.placedAt().isBefore(lastThirtyDaysStart))
+			.hasSizeGreaterThanOrEqualTo(MIN_ORDERS_BEFORE_LAST_THIRTY_DAYS)
+			.allSatisfy(plan -> assertThat(plan.placedAt())
+				.isAfterOrEqualTo(NOW.minus(Duration.ofDays(OrderSeedConstants.HISTORY_DAYS + 1))));
 	}
 
 	private Map<OrderStatus, Long> activeByStatus(List<OrderPlan> plans) {

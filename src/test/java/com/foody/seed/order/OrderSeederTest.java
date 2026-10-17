@@ -269,7 +269,7 @@ class OrderSeederTest {
 			.extractingPath("$.meta.totalItems")
 			.asNumber()
 			.satisfies(total -> assertThat(total.intValue()).isBetween(
-					OrderSeedConstants.ACTIVE_ORDERS_PER_STATUS_BASE * OrderSeedConstants.ACTIVE_STATUSES.size(),
+					OrderSeedConstants.ACTIVE_ORDERS_PER_STATUS_BASE * OrderConstants.ACTIVE_STATUSES.size(),
 					OrderSeedConstants.MAX_ACTIVE_ORDERS));
 		assertThat(board).bodyJson().extractingPath("$.meta.hasNext").isEqualTo(false);
 		assertThat(board).bodyJson().extractingPath("$.meta.pageSize").isEqualTo(BOARD_PAGE_SIZE);

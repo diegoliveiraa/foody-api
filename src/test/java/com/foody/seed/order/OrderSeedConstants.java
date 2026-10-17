@@ -11,15 +11,11 @@ import java.util.Map;
 
 public final class OrderSeedConstants {
 
-	public static final int ORDER_BASE_COUNT = 50;
+	public static final int ORDER_BASE_COUNT = 100;
 
 	public static final int ACTIVE_ORDERS_PER_STATUS_BASE = 2;
 
 	public static final int MAX_ACTIVE_ORDERS = 12;
-
-	public static final List<OrderStatus> ACTIVE_STATUSES = Arrays.stream(OrderStatus.values())
-		.filter(OrderStatus::isActive)
-		.toList();
 
 	public static final int RECENTLY_DELIVERED_BASE = 2;
 
@@ -31,7 +27,9 @@ public final class OrderSeedConstants {
 
 	public static final int FIXED_CUSTOMER_ORDER_COUNT = 5;
 
-	public static final int HISTORY_DAYS = 30;
+	public static final int YESTERDAY_ORDERS_BASE = 4;
+
+	public static final int HISTORY_DAYS = 60;
 
 	public static final Duration RECENT_WINDOW = Duration.ofHours(2);
 

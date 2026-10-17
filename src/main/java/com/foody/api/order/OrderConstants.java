@@ -7,6 +7,7 @@ import com.foody.api.order.exception.CancellationNotAllowedException;
 import com.foody.api.order.exception.PendingCancellationRequestException;
 import com.foody.api.shared.exception.BusinessRuleException;
 import com.foody.api.shared.route.RouteConstants;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -105,6 +106,14 @@ public final class OrderConstants {
 	public static final Map<ActorSide, Supplier<BusinessRuleException>> PENDING_REQUEST_REFUSALS = Map.of(
 			ActorSide.CUSTOMER, CancellationNotAllowedException::new, ActorSide.RESTAURANT,
 			PendingCancellationRequestException::new);
+
+	public static final Set<OrderStatus> ACTIVE_STATUSES = Collections
+		.unmodifiableSet(Arrays.stream(OrderStatus.values())
+			.filter(OrderStatus::isActive)
+			.collect(Collectors.toCollection(() -> EnumSet.noneOf(OrderStatus.class))));
+
+	public static final Map<ChronoUnit, String> DATE_TRUNC_FIELDS = Map.of(ChronoUnit.HOURS, "hour", ChronoUnit.DAYS,
+			"day");
 
 	private OrderConstants() {
 	}

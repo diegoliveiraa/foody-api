@@ -99,3 +99,4 @@ needs migration, rework or monitoring.
 | [ADR-0022](./0022-snapshot-items-and-address-into-the-order-and-number-orders-from-a-sequence.md) | 2026-10-17 | Snapshot items and address into the order and number orders from a sequence | Accepted |
 | [ADR-0023](./0023-query-another-feature-through-an-interface-it-implements.md) | 2026-10-17 | Query another feature through an interface it implements | Accepted |
 | [ADR-0024](./0024-drive-the-order-lifecycle-through-one-policy-per-side-endpoints-and-a-single-cancellation-request.md) | 2026-10-17 | Drive the order lifecycle through one policy, per-side endpoints and a single cancellation request | Accepted |
+| [ADR-0025](./0025-compute-dashboard-kpis-on-demand-in-the-restaurants-time-zone.md) | 2026-10-17 | Compute dashboard KPIs on demand in the restaurant's time zone | Accepted |

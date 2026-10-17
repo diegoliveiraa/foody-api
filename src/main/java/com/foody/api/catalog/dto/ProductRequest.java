@@ -1,6 +1,7 @@
 package com.foody.api.catalog.dto;
 
 import com.foody.api.catalog.CatalogConstants;
+import com.foody.api.shared.money.MoneyConstants;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -19,7 +20,7 @@ public record ProductRequest(
 		@NotNull @DecimalMin(value = CatalogConstants.PRICE_EXCLUSIVE_MIN,
 				inclusive = false) @DecimalMax(CatalogConstants.PRICE_MAX) @Digits(
 						integer = CatalogConstants.PRICE_INTEGER_DIGITS,
-						fraction = CatalogConstants.PRICE_SCALE) BigDecimal price,
+						fraction = MoneyConstants.SCALE) BigDecimal price,
 		@NotNull UUID categoryId) {
 
 	public ProductRequest {

@@ -1,8 +1,6 @@
 package com.foody.api.catalog;
 
 import com.foody.api.shared.persistence.PersistenceConstants;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Set;
 import org.springframework.data.domain.Sort;
 
@@ -35,12 +33,6 @@ public final class CatalogConstants {
 	public static final String PRICE_MAX = "9999.99";
 
 	public static final int PRICE_INTEGER_DIGITS = 4;
-
-	public static final int PRICE_SCALE = 2;
-
-	public static final RoundingMode PRICE_ROUNDING = RoundingMode.HALF_EVEN;
-
-	public static final BigDecimal ZERO_PRICE = BigDecimal.ZERO.setScale(PRICE_SCALE);
 
 	public static final long NO_PRODUCTS = 0;
 

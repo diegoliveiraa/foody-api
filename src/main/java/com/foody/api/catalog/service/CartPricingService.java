@@ -1,11 +1,11 @@
 package com.foody.api.catalog.service;
 
-import com.foody.api.catalog.CatalogConstants;
 import com.foody.api.catalog.dto.CartItem;
 import com.foody.api.catalog.dto.CartQuote;
 import com.foody.api.catalog.dto.QuotedItem;
 import com.foody.api.catalog.entity.Product;
 import com.foody.api.catalog.repository.ProductRepository;
+import com.foody.api.shared.money.MoneyConstants;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class CartPricingService {
 		BigDecimal total = quoted.stream()
 			.filter(QuotedItem::available)
 			.map(QuotedItem::subtotal)
-			.reduce(CatalogConstants.ZERO_PRICE, BigDecimal::add);
+			.reduce(MoneyConstants.ZERO, BigDecimal::add);
 		return new CartQuote(quoted, total);
 	}
 
@@ -52,7 +52,7 @@ public class CartPricingService {
 		}
 		BigDecimal subtotal = product.getPrice()
 			.multiply(BigDecimal.valueOf(item.quantity()))
-			.setScale(CatalogConstants.PRICE_SCALE, CatalogConstants.PRICE_ROUNDING);
+			.setScale(MoneyConstants.SCALE, MoneyConstants.ROUNDING);
 		return QuotedItem.available(item, product, subtotal);
 	}
 
