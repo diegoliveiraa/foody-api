@@ -66,6 +66,12 @@ public class RefreshTokenService {
 	}
 
 	@Transactional
+	public void revokeAllOf(UUID userId) {
+		Instant now = clock.instant();
+		repository.findByUserIdAndRevokedAtIsNull(userId).forEach(token -> token.revoke(now));
+	}
+
+	@Transactional
 	public int deleteExpiredFamilies() {
 		return repository.deleteFamiliesExpiredBefore(clock.instant());
 	}

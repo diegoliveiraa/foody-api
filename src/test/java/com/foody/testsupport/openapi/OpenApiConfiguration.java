@@ -37,6 +37,11 @@ public class OpenApiConfiguration {
 	}
 
 	@Bean
+	PaginationParametersCustomizer paginationParametersCustomizer() {
+		return new PaginationParametersCustomizer();
+	}
+
+	@Bean
 	OperationCustomizer bearerOnProtectedOperations() {
 		return (operation, handlerMethod) -> {
 			if (!AnnotatedElementUtils.hasAnnotation(handlerMethod.getMethod(), PreAuthorize.class)) {

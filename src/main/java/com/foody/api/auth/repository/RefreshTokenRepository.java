@@ -16,6 +16,8 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
 
 	List<RefreshToken> findByFamilyIdAndRevokedAtIsNull(UUID familyId);
 
+	List<RefreshToken> findByUserIdAndRevokedAtIsNull(UUID userId);
+
 	@Modifying
 	@Query("delete from RefreshToken t where t.familyExpiresAt < :instant")
 	int deleteFamiliesExpiredBefore(Instant instant);

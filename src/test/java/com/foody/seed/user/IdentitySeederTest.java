@@ -13,6 +13,7 @@ import com.foody.testsupport.api.ApiIntegrationTest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,9 @@ class IdentitySeederTest {
 	private UserFactory users;
 
 	@Autowired
+	private Faker faker;
+
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	@Autowired
@@ -55,7 +59,7 @@ class IdentitySeederTest {
 	void startFromAnEmptyUsersTable() {
 		refreshTokenRepository.deleteAllInBatch();
 		userRepository.deleteAllInBatch();
-		seeder = new IdentitySeeder(userRepository, users, passwordEncoder, PROPERTIES);
+		seeder = new IdentitySeeder(userRepository, users, faker, passwordEncoder, PROPERTIES);
 	}
 
 	@Test
@@ -75,8 +79,8 @@ class IdentitySeederTest {
 		assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, customer.getPasswordHash())).isTrue();
 		assertThat(countByRole()).containsExactlyInAnyOrderEntriesOf(Map.of(Role.ADMIN, 1L, Role.STAFF,
 				1L + UserSeedConstants.EXTRA_STAFF_COUNT, Role.CUSTOMER, 1L + UserSeedConstants.CUSTOMER_BASE_COUNT));
-		assertThat(userRepository.findAll()).allMatch(User::isActive)
-			.extracting(User::getEmail)
+		assertThat(List.of(admin, staff, customer)).allMatch(User::isActive);
+		assertThat(userRepository.findAll()).extracting(User::getEmail)
 			.allMatch(email -> email.equals(email.toLowerCase()))
 			.doesNotHaveDuplicates();
 	}
@@ -88,6 +92,19 @@ class IdentitySeederTest {
 		seeder.seed(scale);
 
 		assertThat(countByRole()).containsEntry(Role.CUSTOMER, 1L + scale.of(UserSeedConstants.CUSTOMER_BASE_COUNT));
+	}
+
+	@Test
+	void identitySeederDisablesSomeGeneratedCustomersOnly() {
+		SeedScale scale = SeedScale.MEDIUM;
+
+		seeder.seed(scale);
+
+		List<User> disabled = userRepository.findAll().stream().filter(user -> !user.isActive()).toList();
+		assertThat(disabled).hasSize(25)
+			.allMatch(user -> user.getRole() == Role.CUSTOMER)
+			.extracting(User::getEmail)
+			.doesNotContain(PROPERTIES.admin().email(), PROPERTIES.staff().email(), PROPERTIES.customer().email());
 	}
 
 	@Test

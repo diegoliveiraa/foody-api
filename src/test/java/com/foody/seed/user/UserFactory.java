@@ -6,6 +6,7 @@ import com.foody.api.user.repository.UserRepository;
 import com.foody.seed.EntityFactory;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import net.datafaker.Faker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -34,6 +35,20 @@ public class UserFactory extends EntityFactory<User> {
 
 	public User build(String email, Role role, String passwordHash) {
 		return new User(faker.name().fullName(), email, passwordHash, role);
+	}
+
+	public User create(String name, String email) {
+		return save(build(name, email));
+	}
+
+	public User create(String name, String email, Consumer<User> customizer) {
+		User user = build(name, email);
+		customizer.accept(user);
+		return save(user);
+	}
+
+	private User build(String name, String email) {
+		return new User(name, email, unusablePasswordHash, Role.CUSTOMER);
 	}
 
 	private String uniqueEmail() {

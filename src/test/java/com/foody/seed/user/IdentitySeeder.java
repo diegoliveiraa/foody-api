@@ -7,6 +7,7 @@ import com.foody.seed.SeedScale;
 import com.foody.seed.Seeder;
 import java.util.List;
 import java.util.stream.Stream;
+import net.datafaker.Faker;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -17,14 +18,17 @@ public class IdentitySeeder implements Seeder {
 
 	private final UserFactory users;
 
+	private final Faker faker;
+
 	private final PasswordEncoder passwordEncoder;
 
 	private final IdentitySeedProperties properties;
 
-	public IdentitySeeder(UserRepository repository, UserFactory users, PasswordEncoder passwordEncoder,
+	public IdentitySeeder(UserRepository repository, UserFactory users, Faker faker, PasswordEncoder passwordEncoder,
 			IdentitySeedProperties properties) {
 		this.repository = repository;
 		this.users = users;
+		this.faker = faker;
 		this.passwordEncoder = passwordEncoder;
 		this.properties = properties;
 	}
@@ -42,7 +46,17 @@ public class IdentitySeeder implements Seeder {
 		repository.save(users.build(properties.staff().email(), Role.STAFF, defaultPasswordHash));
 		repository.save(users.build(properties.customer().email(), Role.CUSTOMER, defaultPasswordHash));
 		repository.saveAll(many(UserSeedConstants.EXTRA_STAFF_COUNT, Role.STAFF, defaultPasswordHash));
-		repository.saveAll(many(scale.of(UserSeedConstants.CUSTOMER_BASE_COUNT), Role.CUSTOMER, defaultPasswordHash));
+		repository.saveAll(withSomeDisabled(
+				many(scale.of(UserSeedConstants.CUSTOMER_BASE_COUNT), Role.CUSTOMER, defaultPasswordHash)));
+	}
+
+	private List<User> withSomeDisabled(List<User> customers) {
+		int disabledCount = customers.size() * UserSeedConstants.DISABLED_CUSTOMER_PERCENT / UserSeedConstants.PERCENT;
+		Stream.generate(() -> faker.random().nextInt(customers.size()))
+			.distinct()
+			.limit(disabledCount)
+			.forEach(index -> customers.get(index).disable());
+		return customers;
 	}
 
 	private List<User> many(int count, Role role, String passwordHash) {

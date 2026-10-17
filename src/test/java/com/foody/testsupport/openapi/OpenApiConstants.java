@@ -27,6 +27,12 @@ public final class OpenApiConstants {
 
 	public static final String NULL_TYPE = "null";
 
+	public static final String PAGE_PARAMETER = "page";
+
+	public static final String SORT_PARAMETER = "sort";
+
+	public static final String SORT_DESCRIPTION = "property,asc or property,desc; repeat it to sort by more than one property";
+
 	private OpenApiConstants() {
 	}
 

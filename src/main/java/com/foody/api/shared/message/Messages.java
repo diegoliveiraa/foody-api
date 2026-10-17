@@ -16,7 +16,9 @@ public enum Messages {
 	EMAIL_ALREADY_REGISTERED("Este e-mail já está cadastrado"),
 	REFRESH_TOKEN_INVALID("Sua sessão expirou, entre novamente"),
 	PASSWORD_TOO_SHORT("A senha é curta demais. Mínimo de caracteres"),
-	PASSWORD_TOO_LONG("A senha é longa demais. Máximo de bytes");
+	PASSWORD_TOO_LONG("A senha é longa demais. Máximo de bytes"),
+	CANNOT_CHANGE_OWN_ACCOUNT("Você não pode alterar a sua própria conta"),
+	LAST_ACTIVE_ADMIN("É preciso manter ao menos um administrador ativo");
 
 	private final String text;
 

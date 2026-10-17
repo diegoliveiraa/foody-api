@@ -83,4 +83,52 @@ class OpenApiContractTest {
 			.containsExactlyInAnyOrder("key", "label", "actions");
 	}
 
+	@Test
+	void publishesTheUserAdministrationEndpoints() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson().hasPath("$.paths['/admin/users'].get");
+		assertThat(result).bodyJson().hasPath("$.paths['/admin/users/{id}/role'].patch");
+		assertThat(result).bodyJson().hasPath("$.paths['/admin/users/{id}/disable'].post");
+		assertThat(result).bodyJson().hasPath("$.paths['/admin/users/{id}/enable'].post");
+	}
+
+	@Test
+	void requiresEveryComponentOfTheAdminUserResponseButDisabledAt() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.AdminUserResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "name", "email", "role", "status", "createdAt");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.AdminUserResponse.properties.disabledAt.type")
+			.asArray()
+			.containsExactlyInAnyOrder("string", "null");
+	}
+
+	@Test
+	void publishesThePaginationParametersTheApiReads() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/admin/users'].get.parameters[*].name")
+			.asArray()
+			.containsExactlyInAnyOrder("search", "role", "status", "page", "pageSize", "sort");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/admin/users'].get.parameters[?(@.name == 'pageSize')].schema.enum[*]")
+			.asArray()
+			.containsExactly(10, 25, 50, 100);
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/admin/users'].get.parameters[?(@.name == 'page')].schema.minimum")
+			.asArray()
+			.containsExactly(1);
+	}
+
 }

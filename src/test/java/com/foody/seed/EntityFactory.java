@@ -18,17 +18,21 @@ public abstract class EntityFactory<E extends BaseEntity> {
 	public abstract E build();
 
 	public E create() {
-		return repository.save(build());
+		return save(build());
 	}
 
 	public E create(Consumer<E> customizer) {
 		E entity = build();
 		customizer.accept(entity);
-		return repository.save(entity);
+		return save(entity);
 	}
 
 	public List<E> createMany(int count) {
 		return repository.saveAll(Stream.generate(this::build).limit(count).toList());
+	}
+
+	protected E save(E entity) {
+		return repository.save(entity);
 	}
 
 }

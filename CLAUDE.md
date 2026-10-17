@@ -144,6 +144,10 @@ Package by feature: one package per domain (`com.foody.api.<domain>`), with
 `controller`/`service`/`repository`/`dto` separated inside it. A growing service becomes an
 orchestrator plus sub-services; it does not become a 40-method class.
 
+A feature that must react to another one's change listens to a domain event the other publishes
+(ADR-0019); feature packages never depend on each other in both directions — `ArchitectureTest`
+checks it.
+
 ### R10 — No `System.out` / `System.err` / `printStackTrace()`
 
 Use the SLF4J logger (`@Slf4j`), with `{}` placeholders — never a message built by concatenation.
