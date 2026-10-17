@@ -300,6 +300,13 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
   `com.foody.api` or `db/migration` — those reach the local database through `test-run`.
 - Fixed credentials a seeder creates come from `.env`, never from code.
 
+### R21 — Order status changes go through the lifecycle policy
+
+An order advances, is cancelled or has its cancellation request decided only in a service command that
+loads it with `OrderRepository.lockById` and asks `OrderLifecyclePolicy` first (ADR-0024). No other code
+compares order statuses to decide what is allowed; a new rule changes the policy's tables in
+`OrderConstants` and its tests.
+
 ## Environment
 
 - **Local database:** copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`.

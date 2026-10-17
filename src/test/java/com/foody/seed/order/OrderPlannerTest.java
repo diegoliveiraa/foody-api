@@ -2,6 +2,7 @@ package com.foody.seed.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.foody.api.order.entity.CancellationRequestStatus;
 import com.foody.api.order.entity.OrderStatus;
 import com.foody.seed.SeedConstants;
 import com.foody.seed.SeedScale;
@@ -42,15 +43,37 @@ class OrderPlannerTest {
 	}
 
 	@Test
-	void smallScaleKeepsTwoOrdersOfEachActiveStatus() {
+	void smallScaleKeepsTwoOrdersOfEachActiveStatusPlusThoseAwaitingADecision() {
 		OrderPlanner planner = new OrderPlanner(new Faker(SeedConstants.LOCALE, new Random(RANDOM_SEED)), SAO_PAULO);
 
 		List<OrderPlan> plans = planner.plan(SeedScale.SMALL, NOW);
 
 		assertThat(activeByStatus(plans)).containsOnly(
 				Map.entry(OrderStatus.RECEIVED, (long) OrderSeedConstants.ACTIVE_ORDERS_PER_STATUS_BASE),
-				Map.entry(OrderStatus.PREPARING, (long) OrderSeedConstants.ACTIVE_ORDERS_PER_STATUS_BASE),
+				Map.entry(OrderStatus.PREPARING,
+						(long) OrderSeedConstants.ACTIVE_ORDERS_PER_STATUS_BASE
+								+ OrderSeedConstants.PENDING_REQUESTS_BASE),
 				Map.entry(OrderStatus.OUT_FOR_DELIVERY, (long) OrderSeedConstants.ACTIVE_ORDERS_PER_STATUS_BASE));
+		assertThat(plans).filteredOn(plan -> plan.cancellationRequest() == CancellationRequestStatus.PENDING)
+			.hasSize(OrderSeedConstants.PENDING_REQUESTS_BASE)
+			.allSatisfy(plan -> {
+				assertThat(plan.outcome()).isEqualTo(OrderStatus.PREPARING);
+				assertThat(plan.forFixedCustomer()).isFalse();
+			});
+	}
+
+	@Test
+	void fixedCustomerKeepsAReceivedAndAPreparingOrderWithoutRequest() {
+		OrderPlanner planner = new OrderPlanner(new Faker(SeedConstants.LOCALE, new Random(RANDOM_SEED)), SAO_PAULO);
+
+		List<OrderPlan> plans = planner.plan(SeedScale.SMALL, NOW);
+
+		List<OrderPlan> fixedCustomerPlans = plans.stream().filter(OrderPlan::forFixedCustomer).toList();
+		assertThat(fixedCustomerPlans).hasSize(OrderSeedConstants.FIXED_CUSTOMER_ORDER_COUNT)
+			.allSatisfy(plan -> assertThat(plan.cancellationRequest()).isNull());
+		assertThat(fixedCustomerPlans).extracting(OrderPlan::outcome)
+			.filteredOn(OrderStatus::isActive)
+			.containsExactlyInAnyOrder(OrderStatus.RECEIVED, OrderStatus.PREPARING);
 	}
 
 	private Map<OrderStatus, Long> activeByStatus(List<OrderPlan> plans) {

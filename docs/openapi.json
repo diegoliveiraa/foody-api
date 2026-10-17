@@ -870,6 +870,86 @@
         "tags" : [ "my-order-controller" ]
       }
     },
+    "/my-orders/{id}/cancel" : {
+      "post" : {
+        "operationId" : "myOrderCancel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancelOrderRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "my-order-controller" ]
+      }
+    },
+    "/my-orders/{id}/cancellation-request" : {
+      "post" : {
+        "operationId" : "myOrderRequestCancellation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancelOrderRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CustomerOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "my-order-controller" ]
+      }
+    },
     "/orders" : {
       "get" : {
         "operationId" : "orderList",
@@ -986,6 +1066,166 @@
         } ],
         "tags" : [ "order-controller" ]
       }
+    },
+    "/orders/{id}/cancel" : {
+      "post" : {
+        "operationId" : "orderCancel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancelOrderRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "order-controller" ]
+      }
+    },
+    "/orders/{id}/cancellation-request/approve" : {
+      "post" : {
+        "operationId" : "orderApproveCancellation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancellationDecisionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "order-controller" ]
+      }
+    },
+    "/orders/{id}/cancellation-request/decline" : {
+      "post" : {
+        "operationId" : "orderDeclineCancellation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancellationDecisionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "order-controller" ]
+      }
+    },
+    "/orders/{id}/status" : {
+      "patch" : {
+        "operationId" : "orderUpdateStatus",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateOrderStatusRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffOrderDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearer" : [ ]
+        } ],
+        "tags" : [ "order-controller" ]
+      }
     }
   },
   "components" : {
@@ -1034,6 +1274,31 @@
           }
         },
         "required" : [ "accessToken", "expiresIn" ]
+      },
+      "CancelOrderRequest" : {
+        "type" : "object",
+        "properties" : {
+          "note" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "reason" : {
+            "type" : "string",
+            "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+          }
+        },
+        "required" : [ "reason" ]
+      },
+      "CancellationDecisionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "note" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          }
+        }
       },
       "CartItem" : {
         "type" : "object",
@@ -1122,12 +1387,60 @@
         },
         "required" : [ "role" ]
       },
+      "CustomerCancellationRequestResponse" : {
+        "type" : "object",
+        "properties" : {
+          "decidedAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "decisionNote" : {
+            "type" : [ "string", "null" ]
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "reason" : {
+            "type" : "string",
+            "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+          },
+          "requestedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PENDING", "APPROVED", "DECLINED" ]
+          }
+        },
+        "required" : [ "reason", "requestedAt", "status" ]
+      },
       "CustomerOrderDetailResponse" : {
         "type" : "object",
         "properties" : {
+          "canCancel" : {
+            "type" : "boolean"
+          },
+          "canRequestCancellation" : {
+            "type" : "boolean"
+          },
           "cancellation" : {
             "oneOf" : [ {
               "$ref" : "#/components/schemas/OrderCancellationResponse"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "cancellationReasons" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+            }
+          },
+          "cancellationRequest" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/CustomerCancellationRequestResponse"
             }, {
               "type" : "null"
             } ]
@@ -1170,7 +1483,7 @@
             "type" : "number"
           }
         },
-        "required" : [ "deliveryAddress", "history", "id", "items", "live", "number", "placedAt", "status", "total" ]
+        "required" : [ "canCancel", "canRequestCancellation", "cancellationReasons", "deliveryAddress", "history", "id", "items", "live", "number", "placedAt", "status", "total" ]
       },
       "CustomerOrderHistoryEntry" : {
         "type" : "object",
@@ -1204,6 +1517,10 @@
       "CustomerOrderSummaryResponse" : {
         "type" : "object",
         "properties" : {
+          "cancellationRequestStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PENDING", "APPROVED", "DECLINED" ]
+          },
           "id" : {
             "type" : "string",
             "format" : "uuid"
@@ -1741,12 +2058,67 @@
         },
         "required" : [ "email", "name", "password" ]
       },
+      "StaffCancellationRequestResponse" : {
+        "type" : "object",
+        "properties" : {
+          "decidedAt" : {
+            "type" : [ "string", "null" ],
+            "format" : "date-time"
+          },
+          "decidedByName" : {
+            "type" : [ "string", "null" ]
+          },
+          "decisionNote" : {
+            "type" : [ "string", "null" ]
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "reason" : {
+            "type" : "string",
+            "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+          },
+          "requestedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PENDING", "APPROVED", "DECLINED" ]
+          }
+        },
+        "required" : [ "reason", "requestedAt", "status" ]
+      },
       "StaffOrderDetailResponse" : {
         "type" : "object",
         "properties" : {
+          "allowedTransitions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+            }
+          },
+          "canCancel" : {
+            "type" : "boolean"
+          },
           "cancellation" : {
             "oneOf" : [ {
               "$ref" : "#/components/schemas/OrderCancellationResponse"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "cancellationReasons" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+            }
+          },
+          "cancellationRequest" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/StaffCancellationRequestResponse"
             }, {
               "type" : "null"
             } ]
@@ -1792,7 +2164,7 @@
             "type" : "number"
           }
         },
-        "required" : [ "customer", "deliveryAddress", "history", "id", "items", "live", "number", "placedAt", "status", "total" ]
+        "required" : [ "allowedTransitions", "canCancel", "cancellationReasons", "customer", "deliveryAddress", "history", "id", "items", "live", "number", "placedAt", "status", "total" ]
       },
       "StaffOrderHistoryEntry" : {
         "type" : "object",
@@ -1829,8 +2201,28 @@
       "StaffOrderSummaryResponse" : {
         "type" : "object",
         "properties" : {
+          "allowedTransitions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+            }
+          },
+          "canCancel" : {
+            "type" : "boolean"
+          },
+          "cancellationReasons" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "CHANGED_MIND", "ORDERED_BY_MISTAKE", "TAKING_TOO_LONG", "ITEM_UNAVAILABLE", "STORE_CLOSED", "CUSTOMER_REQUEST", "DELIVERY_FAILED", "OTHER" ]
+            }
+          },
           "customerName" : {
             "type" : "string"
+          },
+          "hasPendingCancellationRequest" : {
+            "type" : "boolean"
           },
           "id" : {
             "type" : "string",
@@ -1861,7 +2253,17 @@
             "type" : "number"
           }
         },
-        "required" : [ "customerName", "id", "items", "live", "number", "placedAt", "status", "total" ]
+        "required" : [ "allowedTransitions", "canCancel", "cancellationReasons", "customerName", "hasPendingCancellationRequest", "id", "items", "live", "number", "placedAt", "status", "total" ]
+      },
+      "UpdateOrderStatusRequest" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RECEIVED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED" ]
+          }
+        },
+        "required" : [ "status" ]
       }
     },
     "securitySchemes" : {

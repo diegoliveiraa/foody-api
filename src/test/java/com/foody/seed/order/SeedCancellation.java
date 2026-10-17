@@ -10,9 +10,7 @@ import net.datafaker.Faker;
 
 public enum SeedCancellation {
 
-	CUSTOMER_GAVE_UP(OrderStatus.RECEIVED, ActorSide.CUSTOMER,
-			List.of(CancellationReason.CHANGED_MIND, CancellationReason.ORDERED_BY_MISTAKE,
-					CancellationReason.TAKING_TOO_LONG),
+	CUSTOMER_GAVE_UP(OrderStatus.RECEIVED, ActorSide.CUSTOMER, OrderSeedConstants.CUSTOMER_REASONS,
 			OrderSeedConstants.CUSTOMER_OTHER_NOTES, new MinuteRange(2, 10), 40),
 	RESTAURANT_REFUSED(OrderStatus.RECEIVED, ActorSide.RESTAURANT,
 			List.of(CancellationReason.ITEM_UNAVAILABLE, CancellationReason.STORE_CLOSED,

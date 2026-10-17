@@ -87,11 +87,21 @@ public class Order extends BaseEntity {
 
 	public void cancel(User actor, ActorSide side, CancellationReason reason, @Nullable String note,
 			Instant occurredAt) {
-		history.add(new OrderStatusHistory(this, status, OrderStatus.CANCELLED, actor, side, reason, note, occurredAt));
+		cancel(actor, side, side, reason, note, occurredAt);
+	}
+
+	public void cancel(User actor, ActorSide actorSide, ActorSide initiator, CancellationReason reason,
+			@Nullable String note, Instant occurredAt) {
+		history.add(new OrderStatusHistory(this, status, OrderStatus.CANCELLED, actor, actorSide, reason, note,
+				occurredAt));
 		status = OrderStatus.CANCELLED;
-		cancelledBy = side;
+		cancelledBy = initiator;
 		cancelReason = reason;
 		cancelNote = note;
+	}
+
+	public boolean isPlacedBy(UUID customerId) {
+		return customer.getId().equals(customerId);
 	}
 
 	public List<OrderItem> getItems() {

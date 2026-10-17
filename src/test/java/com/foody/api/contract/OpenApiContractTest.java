@@ -247,7 +247,7 @@ class OpenApiContractTest {
 			.extractingPath("$.components.schemas.CustomerOrderDetailResponse.required")
 			.asArray()
 			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "live", "items", "total",
-					"deliveryAddress", "history");
+					"deliveryAddress", "history", "canCancel", "canRequestCancellation", "cancellationReasons");
 		assertThat(result).bodyJson()
 			.extractingPath("$.components.schemas.CustomerOrderDetailResponse.properties.cancellation.oneOf[1].type")
 			.isEqualTo("null");
@@ -255,11 +255,12 @@ class OpenApiContractTest {
 			.extractingPath("$.components.schemas.StaffOrderDetailResponse.required")
 			.asArray()
 			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "live", "customer", "items", "total",
-					"deliveryAddress", "history");
+					"deliveryAddress", "history", "allowedTransitions", "canCancel", "cancellationReasons");
 		assertThat(result).bodyJson()
 			.extractingPath("$.components.schemas.StaffOrderSummaryResponse.required")
 			.asArray()
-			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "total", "live", "customerName", "items");
+			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "total", "live", "customerName", "items",
+					"hasPendingCancellationRequest", "allowedTransitions", "canCancel", "cancellationReasons");
 		assertThat(result).bodyJson()
 			.extractingPath("$.components.schemas.CustomerOrderHistoryEntry.required")
 			.asArray()
@@ -276,6 +277,74 @@ class OpenApiContractTest {
 			.extractingPath("$.components.schemas.OrderCancellationResponse.required")
 			.asArray()
 			.containsExactlyInAnyOrder("cancelledBy", "reason");
+	}
+
+	@Test
+	void publishesTheOrderLifecycleEndpointsNamedAfterTheirControllers() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders/{id}/status'].patch.operationId")
+			.isEqualTo("orderUpdateStatus");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders/{id}/cancel'].post.operationId")
+			.isEqualTo("orderCancel");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders/{id}/cancellation-request/approve'].post.operationId")
+			.isEqualTo("orderApproveCancellation");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders/{id}/cancellation-request/decline'].post.operationId")
+			.isEqualTo("orderDeclineCancellation");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/my-orders/{id}/cancel'].post.operationId")
+			.isEqualTo("myOrderCancel");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/my-orders/{id}/cancellation-request'].post.operationId")
+			.isEqualTo("myOrderRequestCancellation");
+		assertThat(result).bodyJson()
+			.extractingPath("$.paths['/orders/{id}/cancellation-request/decline'].post.requestBody.required")
+			.isEqualTo(true);
+	}
+
+	@Test
+	void requiresEveryLifecycleComponentButTheNullableOnes() {
+		String path = OpenApiConstants.DOCS_PATH;
+
+		MvcTestResult result = mvc.get().uri(path).exchange();
+
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.UpdateOrderStatusRequest.required")
+			.asArray()
+			.containsExactly("status");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CancelOrderRequest.required")
+			.asArray()
+			.containsExactly("reason");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CancelOrderRequest.properties.note.type")
+			.asArray()
+			.containsExactlyInAnyOrder("string", "null");
+		assertThat(result).bodyJson().doesNotHavePath("$.components.schemas.CancellationDecisionRequest.required");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.StaffCancellationRequestResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("status", "reason", "requestedAt");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CustomerCancellationRequestResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("status", "reason", "requestedAt");
+		assertThat(result).bodyJson()
+			.doesNotHavePath("$.components.schemas.CustomerCancellationRequestResponse.properties.decidedByName");
+		assertThat(result).bodyJson()
+			.extractingPath(
+					"$.components.schemas.StaffOrderDetailResponse.properties.cancellationRequest.oneOf[1].type")
+			.isEqualTo("null");
+		assertThat(result).bodyJson()
+			.extractingPath("$.components.schemas.CustomerOrderSummaryResponse.required")
+			.asArray()
+			.containsExactlyInAnyOrder("id", "number", "status", "placedAt", "total", "live", "items");
 	}
 
 	@Test

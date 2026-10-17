@@ -26,7 +26,14 @@ public enum Messages {
 	DUPLICATE_CART_PRODUCT("Cada produto pode aparecer uma única vez"),
 	PRODUCT_IN_USE("O produto já aparece em pedidos; desabilite-o em vez de excluir"),
 	ORDER_NOT_FOUND("Pedido não encontrado"), PRODUCT_UNAVAILABLE("Um ou mais produtos não estão mais disponíveis"),
-	INVALID_ZIP_CODE("CEP inválido. Use o formato 00000-000");
+	INVALID_ZIP_CODE("CEP inválido. Use o formato 00000-000"),
+	INVALID_STATUS_TRANSITION("O pedido não pode ir para esse status agora"),
+	CANCELLATION_NOT_ALLOWED("Este pedido não pode ser cancelado agora"),
+	INVALID_CANCELLATION_REASON("Esse motivo não vale para este cancelamento"),
+	PENDING_CANCELLATION_REQUEST("Decida antes a solicitação de cancelamento do cliente"),
+	CANCELLATION_ALREADY_REQUESTED("Este pedido já teve uma solicitação de cancelamento"),
+	NO_PENDING_CANCELLATION_REQUEST("Não há solicitação de cancelamento pendente para este pedido"),
+	CANCELLATION_NOTE_REQUIRED("Conte o motivo do cancelamento na observação");
 
 	private final String text;
 

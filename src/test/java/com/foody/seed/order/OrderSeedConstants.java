@@ -1,6 +1,8 @@
 package com.foody.seed.order;
 
+import com.foody.api.order.entity.ActorSide;
 import com.foody.api.order.entity.BrazilianState;
+import com.foody.api.order.entity.CancellationReason;
 import com.foody.api.order.entity.OrderStatus;
 import java.time.Duration;
 import java.util.Arrays;
@@ -19,9 +21,13 @@ public final class OrderSeedConstants {
 		.filter(OrderStatus::isActive)
 		.toList();
 
-	public static final int MAX_ORDERS_PER_RECENT_STATUS = MAX_ACTIVE_ORDERS / ACTIVE_STATUSES.size();
-
 	public static final int RECENTLY_DELIVERED_BASE = 2;
+
+	public static final int PENDING_REQUESTS_BASE = 2;
+
+	public static final int APPROVED_REQUESTS_BASE = 2;
+
+	public static final int DECLINED_REQUESTS_BASE = 2;
 
 	public static final int FIXED_CUSTOMER_ORDER_COUNT = 5;
 
@@ -37,14 +43,25 @@ public final class OrderSeedConstants {
 
 	public static final List<Integer> ITEM_COUNTS = List.of(1, 1, 1, 2, 2, 2, 3, 3, 4);
 
-	public static final List<OrderStatus> FORWARD_PATH = List.of(OrderStatus.PREPARING, OrderStatus.OUT_FOR_DELIVERY,
-			OrderStatus.DELIVERED);
+	public static final List<OrderStatus> FORWARD_PATH = List.of(OrderStatus.RECEIVED, OrderStatus.PREPARING,
+			OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED);
 
 	public static final Map<OrderStatus, MinuteRange> STEP_DELAYS = Map.of(OrderStatus.PREPARING, new MinuteRange(1, 5),
 			OrderStatus.OUT_FOR_DELIVERY, new MinuteRange(12, 25), OrderStatus.DELIVERED, new MinuteRange(15, 35));
 
 	public static final List<String> CUSTOMER_OTHER_NOTES = List.of("Vou pedir de novo com outro endereço",
 			"Escolhi a forma de pagamento errada", "Um amigo já trouxe o jantar");
+
+	public static final List<CancellationReason> CUSTOMER_REASONS = Arrays.stream(CancellationReason.values())
+		.filter(reason -> reason.allows(ActorSide.CUSTOMER) && !reason.requiresNote())
+		.toList();
+
+	public static final MinuteRange REQUEST_DELAY = new MinuteRange(2, 6);
+
+	public static final MinuteRange DECISION_DELAY = new MinuteRange(1, 4);
+
+	public static final List<String> DECLINE_NOTES = List.of("O pedido já está quase pronto",
+			"Já separamos tudo, vai sair em instantes", "O entregador já está a caminho da loja");
 
 	public static final List<String> RESTAURANT_OTHER_NOTES = List.of("Endereço fora da área de entrega",
 			"Pagamento não confirmado", "Cliente não atende o telefone");

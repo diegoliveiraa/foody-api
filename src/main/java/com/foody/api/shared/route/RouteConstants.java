@@ -22,7 +22,11 @@ public final class RouteConstants {
 
 	public static final String MY_ORDERS_PATH = "/my-orders";
 
-	public static final String MY_ORDER_CANCELLATION_REQUEST_PATH = MY_ORDERS_PATH + ID_PATH + "/cancellation-request";
+	public static final String CANCEL_PATH = ID_PATH + "/cancel";
+
+	public static final String CANCELLATION_REQUEST_PATH = ID_PATH + "/cancellation-request";
+
+	public static final String MY_ORDER_CANCELLATION_REQUEST_PATH = MY_ORDERS_PATH + CANCELLATION_REQUEST_PATH;
 
 	private RouteConstants() {
 	}

@@ -1,5 +1,7 @@
 package com.foody.testsupport.order;
 
+import com.foody.api.order.entity.CancellationReason;
+import com.foody.api.order.entity.OrderStatus;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
@@ -15,6 +17,18 @@ public final class OrderRequests {
 
 	private static final String ADDRESS = """
 			{ "zipCode": %s, "street": %s, "number": %s, "complement": %s, "neighborhood": %s, "city": %s, "state": %s }
+			""";
+
+	private static final String STATUS = """
+			{ "status": %s }
+			""";
+
+	private static final String CANCELLATION = """
+			{ "reason": %s, "note": %s }
+			""";
+
+	private static final String DECISION = """
+			{ "note": %s }
 			""";
 
 	private static final String ITEM_SEPARATOR = ",";
@@ -41,6 +55,18 @@ public final class OrderRequests {
 			@Nullable String complement, @Nullable String neighborhood, @Nullable String city, @Nullable String state) {
 		return ADDRESS.formatted(text(zipCode), text(street), text(number), text(complement), text(neighborhood),
 				text(city), text(state));
+	}
+
+	public static String status(OrderStatus status) {
+		return STATUS.formatted(text(status.name()));
+	}
+
+	public static String cancellation(CancellationReason reason, @Nullable String note) {
+		return CANCELLATION.formatted(text(reason.name()), text(note));
+	}
+
+	public static String decision(@Nullable String note) {
+		return DECISION.formatted(text(note));
 	}
 
 	private static String text(@Nullable String value) {

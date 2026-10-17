@@ -3,7 +3,9 @@ package com.foody.seed.order;
 import com.foody.api.catalog.dto.CartItem;
 import com.foody.api.catalog.entity.Product;
 import com.foody.api.catalog.repository.ProductRepository;
+import com.foody.api.order.entity.CancellationRequest;
 import com.foody.api.order.entity.Order;
+import com.foody.api.order.repository.CancellationRequestRepository;
 import com.foody.api.order.repository.OrderRepository;
 import com.foody.api.shared.persistence.ActivationStatus;
 import com.foody.api.shared.persistence.PersistenceConstants;
@@ -20,6 +22,7 @@ import com.foody.seed.user.IdentitySeedProperties;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import net.datafaker.Faker;
 import org.springframework.data.domain.Sort;
@@ -28,6 +31,8 @@ import org.springframework.data.domain.Sort;
 public class OrderSeeder implements Seeder {
 
 	private final OrderRepository orderRepository;
+
+	private final CancellationRequestRepository cancellationRequestRepository;
 
 	private final UserRepository userRepository;
 
@@ -45,10 +50,11 @@ public class OrderSeeder implements Seeder {
 
 	private final OrderStory story;
 
-	public OrderSeeder(OrderRepository orderRepository, UserRepository userRepository,
-			ProductRepository productRepository, OrderFactory orders, Faker faker, Clock clock,
-			RestaurantProperties restaurant, IdentitySeedProperties identity) {
+	public OrderSeeder(OrderRepository orderRepository, CancellationRequestRepository cancellationRequestRepository,
+			UserRepository userRepository, ProductRepository productRepository, OrderFactory orders, Faker faker,
+			Clock clock, RestaurantProperties restaurant, IdentitySeedProperties identity) {
 		this.orderRepository = orderRepository;
+		this.cancellationRequestRepository = cancellationRequestRepository;
 		this.userRepository = userRepository;
 		this.productRepository = productRepository;
 		this.orders = orders;
@@ -68,7 +74,7 @@ public class OrderSeeder implements Seeder {
 	public void seed(SeedScale scale) {
 		Instant now = clock.instant().truncatedTo(PersistenceConstants.TIMESTAMP_PRECISION);
 		SeedCast cast = cast();
-		planner.plan(scale, now).forEach(plan -> orderRepository.save(orderFor(plan, cast)));
+		planner.plan(scale, now).forEach(plan -> seedOrder(plan, cast));
 	}
 
 	private SeedCast cast() {
@@ -86,11 +92,12 @@ public class OrderSeeder implements Seeder {
 		return userRepository.findAll(UserSpecifications.matching(filter), Sort.by(UserConstants.EMAIL_ATTRIBUTE));
 	}
 
-	private Order orderFor(OrderPlan plan, SeedCast cast) {
+	private void seedOrder(OrderPlan plan, SeedCast cast) {
 		User customer = customerFor(plan, cast);
 		Order order = orders.build(customer, itemsFrom(cast.menu()), orders.deliveryAddress(), plan.placedAt());
-		story.playOut(order, plan.outcome(), customer, cast.staff());
-		return order;
+		Optional<CancellationRequest> request = story.playOut(order, plan, customer, cast.staff());
+		orderRepository.save(order);
+		request.ifPresent(cancellationRequestRepository::save);
 	}
 
 	private User customerFor(OrderPlan plan, SeedCast cast) {

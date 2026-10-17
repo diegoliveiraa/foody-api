@@ -1,6 +1,7 @@
 package com.foody.api.order.controller;
 
 import com.foody.api.order.OrderConstants;
+import com.foody.api.order.dto.CancelOrderRequest;
 import com.foody.api.order.dto.CustomerOrderDetailResponse;
 import com.foody.api.order.dto.CustomerOrderSummaryResponse;
 import com.foody.api.order.dto.PlaceOrderRequest;
@@ -57,6 +58,20 @@ public class MyOrderController {
 	public CustomerOrderDetailResponse detail(@AuthenticationPrincipal AuthenticatedUser caller,
 			@PathVariable UUID id) {
 		return orders.detail(caller.id(), id);
+	}
+
+	@PostMapping(RouteConstants.CANCEL_PATH)
+	@RequiresGrant(screen = Screen.STORE_MY_ORDERS, action = Action.CANCEL)
+	public CustomerOrderDetailResponse cancel(@AuthenticationPrincipal AuthenticatedUser caller, @PathVariable UUID id,
+			@Valid @RequestBody CancelOrderRequest request) {
+		return orders.cancel(caller.id(), id, request);
+	}
+
+	@PostMapping(RouteConstants.CANCELLATION_REQUEST_PATH)
+	@RequiresGrant(screen = Screen.STORE_MY_ORDERS, action = Action.REQUEST_CANCELLATION)
+	public CustomerOrderDetailResponse requestCancellation(@AuthenticationPrincipal AuthenticatedUser caller,
+			@PathVariable UUID id, @Valid @RequestBody CancelOrderRequest request) {
+		return orders.requestCancellation(caller.id(), id, request);
 	}
 
 }
