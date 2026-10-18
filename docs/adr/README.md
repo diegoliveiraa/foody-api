@@ -85,7 +85,7 @@ needs migration, rework or monitoring.
 | [ADR-0008](./0008-publish-the-openapi-contract-from-a-test.md) | 2026-10-16 | Publish the OpenAPI contract from a test, keeping springdoc out of production | Accepted |
 | [ADR-0009](./0009-enforce-the-code-rules-with-tooling-and-ci.md) | 2026-10-16 | Enforce the code rules with tooling and CI | Accepted |
 | [ADR-0010](./0010-log-structured-json-with-a-request-id.md) | 2026-10-16 | Log structured JSON in deploy, every line tied to a request id | Accepted |
-| [ADR-0011](./0011-keep-dependencies-current-with-dependabot.md) | 2026-10-16 | Keep dependencies current with Dependabot | Accepted |
+| [ADR-0011](./0011-keep-dependencies-current-with-dependabot.md) | 2026-10-16 | Keep dependencies current with Dependabot | Accepted — target branch and platform majors refined by ADR-0030 |
 | [ADR-0012](./0012-grant-screens-and-actions-to-roles-in-code.md) | 2026-10-16 | Grant screens and actions to roles in code | Accepted |
 | [ADR-0013](./0013-open-registration-and-health-to-anonymous-callers.md) | 2026-10-16 | Open registration and health to anonymous callers | Accepted |
 | [ADR-0014](./0014-render-security-failures-and-rate-limits-as-problem-details.md) | 2026-10-16 | Render security failures and rate limits as Problem Details | Accepted |
@@ -104,3 +104,4 @@ needs migration, rework or monitoring.
 | [ADR-0027](./0027-search-names-ignoring-accents-with-unaccent-and-trigram-indexes.md) | 2026-10-17 | Search names ignoring accents with unaccent and trigram indexes | Accepted |
 | [ADR-0028](./0028-one-command-runs-a-seeded-demo-stack-separate-from-the-production-image.md) | 2026-10-18 | One command runs a seeded demo stack, separate from the production image | Accepted |
 | [ADR-0029](./0029-give-the-api-1-gb-now-that-its-non-heap-memory-outgrew-512-mb.md) | 2026-10-18 | Give the API 1 GB now that its non-heap memory outgrew 512 MB | Accepted |
+| [ADR-0030](./0030-dependabot-targets-develop-and-leaves-platform-majors-to-planned-upgrades.md) | 2026-10-18 | Dependabot targets develop and leaves platform majors to planned upgrades | Accepted |
