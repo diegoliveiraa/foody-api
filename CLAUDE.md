@@ -230,7 +230,8 @@ Authentication follows ADR-0002 and ADR-0013:
 - Rate limits are declared in `foody.rate-limit.*` and enforced by the filter in `shared.ratelimit`
   (ADR-0017); a new endpoint that needs its own limit adds a policy there.
 - Signing keys and secrets come from configuration outside the repository — nothing secret is
-  committed, not even for local use.
+  committed, not even for local use. The demo stack's published defaults in `compose.yaml` are the
+  one exception, and they never leave that file (ADR-0028).
 
 ### R18 — Persistence
 
@@ -303,7 +304,8 @@ Seed code is test code, in `src/test/java/com/foody/seed/<domain>/` (ADR-0007):
 - **Test classes in `com.foody.seed` are named `*Test`** — the seed scan skips them and their fakes.
 - **Test-only entities and migrations go in `com.foody.testsupport` and `db/testsupport`**, never in
   `com.foody.api` or `db/migration` — those reach the local database through `test-run`.
-- Fixed credentials a seeder creates come from `.env`, never from code.
+- Fixed credentials a seeder creates come from `.env`, never from code. The one exception is the demo
+  stack: `compose.yaml` gives them local-only defaults that a `.env` overrides (ADR-0028).
 
 ### R21 — Order status changes go through the lifecycle policy
 
@@ -314,9 +316,19 @@ compares order statuses to decide what is allowed; a new rule changes the policy
 
 ## Environment
 
+- **Demo stack:** `docker compose up -d --build --wait` runs `compose.yaml` (project `foody-demo`,
+  ADR-0028): a one-shot `keys` service writes a JWT key pair into a volume, PostgreSQL starts
+  unpublished, and the API — built from `Dockerfile.demo`, `TestFoodyApiApplication`
+  with the seed and Swagger UI — answers on `http://localhost:8080` (`API_PORT`) once the seed is in.
+  No JDK, `.env` or bash needed: every value has a demo default in `compose.yaml`, and a `.env`
+  overrides any of them; `SEED_SCALE` sets the volume. `docker compose down` stops it;
+  `docker compose down -v` wipes its database and keys, so the next `up` seeds again. Those defaults
+  are demo-only — never copy them into `compose.deploy.yaml`, `compose.dev.yaml` or code.
 - **Local database:** copy `.env.example` to `.env` and set `POSTGRES_PASSWORD`.
-  `./mvnw spring-boot:run` starts `compose.yaml` (PostgreSQL on `127.0.0.1:5432`) through Spring
-  Boot's Docker Compose support — no datasource properties to set.
+  `./mvnw spring-boot:run` starts `compose.dev.yaml` (project `foody-local`, PostgreSQL on
+  `127.0.0.1:5432`) through Spring Boot's Docker Compose support (`spring.docker.compose.file`) — no
+  datasource properties to set. A bare `docker compose` now means the demo: commands on the local
+  database take `-f compose.dev.yaml`.
 - **JWT keys:** run `bash scripts/generate-jwt-keys.sh` once. It writes `.secrets/jwt-private.pem`
   and `.secrets/jwt-public.pem` (git-ignored) and refuses to overwrite them without `--force`; the
   API does not start without them (ADR-0015). Tests generate their own pair.
@@ -325,12 +337,17 @@ compares order statuses to decide what is allowed; a new rule changes the policy
   from `.env`: `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` for the admin, `SEED_STAFF_EMAIL` and
   `SEED_CUSTOMER_EMAIL` for one staff and one customer, and `SEED_DEFAULT_PASSWORD` for everyone but
   the admin — 4 more staff and 50 customers per scale unit. Without them `test-run` refuses to
-  start. Seeders skip tables that already have data — for a fresh start, `docker compose down` and
-  remove the `foody-local_postgres-data` volume. The seed profile raises every rate limit
+  start. Seeders skip tables that already have data — for a fresh start, stop the API and run
+  `docker compose -f compose.dev.yaml down -v`, which removes the `foody-local_postgres-data` volume.
+  The seed profile raises every rate limit
   (`rate-limit-generous.properties`, also used by `@ApiIntegrationTest`), so local exploration and
   E2E runs are never throttled. Swagger UI is there too, at
-  `http://localhost:8080/swagger-ui.html` — and only there: springdoc is a test dependency.
-- **Image:** `docker build -t foody-api .` (ADR-0004). **Deploy:**
+  `http://localhost:8080/swagger-ui.html` — there and in the demo stack, which runs the same entry
+  point, never in the production image: springdoc is a test dependency.
+- **Image:** `docker build -t foody-api .` builds the production image from the `Dockerfile`
+  (ADR-0004); its `.dockerignore` keeps `src/test` out of the build context. The demo stack builds
+  `Dockerfile.demo` instead (ADR-0028), whose own `Dockerfile.demo.dockerignore` lets `src/test` in —
+  a change to the Java version or the Maven bootstrap goes into both files. **Deploy:**
   `docker compose -f compose.deploy.yaml up -d`, with the `.env` on the host and the key pair in
   `.secrets/` (or wherever `JWT_PRIVATE_KEY_FILE` and `JWT_PUBLIC_KEY_FILE` point), mounted as
   compose secrets. `FOODY_WEB_ALLOWEDORIGINS` lists the front's origins. Nothing secret lives in
@@ -348,7 +365,8 @@ exception handling, protected controllers, package cycles, standard streams, fie
 `docs/openapi.json`. Docker
 must be running: database tests use Testcontainers (R18). Changed a dependency or the `Dockerfile`?
 Also bring up `compose.deploy.yaml` and wait for the API to report healthy — a JDK module that
-`jdeps` cannot see fails only when the image runs (ADR-0004). A rule that blocks you is fixed in the
+`jdeps` cannot see fails only when the image runs (ADR-0004) — and the demo stack, which runs on the
+test classpath (ADR-0028). A rule that blocks you is fixed in the
 code, never by loosening `ArchitectureTest` or the build (standing rule 4).
 
 **Self-review against what reviewers keep flagging** — run over the files you touched and fix

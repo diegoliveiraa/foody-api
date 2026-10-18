@@ -1,6 +1,6 @@
 # ADR-0004 — Ship a jlink-trimmed JRE on Alpine, with separate local and deploy compose files
 
-- **Status:** Accepted
+- **Status:** Accepted — local compose file superseded by ADR-0028
 - **Date:** 2026-10-16
 - **Decided by:** Diego
 

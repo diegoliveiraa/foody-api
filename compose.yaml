@@ -1,14 +1,31 @@
-name: foody-local
+name: foody-demo
 
 services:
+  keys:
+    image: alpine:3.24
+    command:
+      - sh
+      - -euc
+      - |
+        if [ -s /keys/jwt-private.pem ] && [ -s /keys/jwt-public.pem ]; then
+          echo "JWT key pair already in place."
+          exit 0
+        fi
+        apk add --no-cache --quiet openssl
+        openssl genpkey -quiet -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /keys/jwt-private.pem.tmp
+        openssl pkey -in /keys/jwt-private.pem.tmp -pubout -out /keys/jwt-public.pem
+        chmod 644 /keys/jwt-private.pem.tmp /keys/jwt-public.pem
+        mv /keys/jwt-private.pem.tmp /keys/jwt-private.pem
+        echo "JWT key pair generated."
+    volumes:
+      - jwt-keys:/keys
+
   postgres:
     image: postgres:18-alpine
     environment:
       POSTGRES_DB: foody
       POSTGRES_USER: foody
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
-    ports:
-      - "127.0.0.1:5432:5432"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-foody-demo}"
     volumes:
       - postgres-data:/var/lib/postgresql
     healthcheck:
@@ -17,5 +34,42 @@ services:
       timeout: 3s
       retries: 10
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/foody
+      SPRING_DATASOURCE_USERNAME: foody
+      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:-foody-demo}"
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      FOODY_SECURITY_JWT_PRIVATEKEY: file:/keys/jwt-private.pem
+      FOODY_SECURITY_JWT_PUBLICKEY: file:/keys/jwt-public.pem
+      FOODY_WEB_ALLOWEDORIGINS: "${FOODY_WEB_ALLOWEDORIGINS:-http://localhost:5173,http://localhost:4174}"
+      FOODY_SEED_SCALE: "${SEED_SCALE:-SMALL}"
+      SEED_ADMIN_EMAIL: "${SEED_ADMIN_EMAIL:-admin@foody.local}"
+      SEED_ADMIN_PASSWORD: "${SEED_ADMIN_PASSWORD:-Foody#2026}"
+      SEED_STAFF_EMAIL: "${SEED_STAFF_EMAIL:-equipe@foody.local}"
+      SEED_CUSTOMER_EMAIL: "${SEED_CUSTOMER_EMAIL:-cliente@foody.local}"
+      SEED_DEFAULT_PASSWORD: "${SEED_DEFAULT_PASSWORD:-Foody#2026}"
+    volumes:
+      - jwt-keys:/keys:ro
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      keys:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 30m
+    security_opt:
+      - no-new-privileges:true
+
 volumes:
   postgres-data:
+  jwt-keys:

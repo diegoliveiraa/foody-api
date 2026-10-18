@@ -59,3 +59,31 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose -f compose.deploy.yaml down --volumes
+
+  demo:
+    name: Demo stack runs seeded
+    needs: verify
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build and start the demo stack
+        run: docker compose up -d --build --wait --wait-timeout 300
+      - name: The demo admin logs in and reads /me and /dashboard
+        shell: bash
+        run: |
+          base_url="http://127.0.0.1:8080"
+          environment=$(docker compose config --format json | jq -c '.services.api.environment')
+          body=$(jq -n --argjson env "$environment" '{email: $env.SEED_ADMIN_EMAIL, password: $env.SEED_ADMIN_PASSWORD}')
+          token=$(curl -fsS -X POST "$base_url/auth/login" -H 'Content-Type: application/json' -d "$body" \
+            | jq -er '.accessToken')
+          for path in /me /dashboard; do
+            status=$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $token" "$base_url$path")
+            echo "GET $path answered $status"
+            test "$status" = "200"
+          done
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: Tear down
+        if: always()
+        run: docker compose down --volumes
