@@ -354,7 +354,9 @@ compares order statuses to decide what is allowed; a new rule changes the policy
   the compose files or the image.
 - **Memory:** the heap is 50% of the container limit. To give the API more memory, raise
   `API_MEMORY_LIMIT` — never add `-Xmx` or raise the percentage: the other half is non-heap,
-  threads and native memory, and running short of it gets the container killed (ADR-0004).
+  threads and native memory, and running short of it gets the container killed (ADR-0004). The
+  1024M default comes from a load test (ADR-0029); re-run `scripts/load-test/run.sh` when the API
+  grows, and raise the limit if the pre-touched peak leaves less than about 15% free.
 
 ## Before handing off
 

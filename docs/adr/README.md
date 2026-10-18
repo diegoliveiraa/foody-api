@@ -78,7 +78,7 @@ needs migration, rework or monitoring.
 | [ADR-0001](./0001-navigation-and-permissions-are-served-by-get-me.md) | 2026-10-16 | Navigation and permissions are served by GET /me | Accepted |
 | [ADR-0002](./0002-authenticate-with-short-lived-jwts-and-server-side-refresh-tokens.md) | 2026-10-16 | Authenticate with short-lived JWTs and server-side refresh tokens | Accepted — public endpoint list superseded by ADR-0013 |
 | [ADR-0003](./0003-persist-in-postgresql-through-jpa-with-flyway-migrations.md) | 2026-10-16 | Persist in PostgreSQL through Spring Data JPA, with Flyway migrations | Accepted |
-| [ADR-0004](./0004-ship-a-jlink-trimmed-jre-on-alpine-with-local-and-deploy-compose.md) | 2026-10-16 | Ship a jlink-trimmed JRE on Alpine, with separate local and deploy compose files | Accepted — local compose file superseded by ADR-0028 |
+| [ADR-0004](./0004-ship-a-jlink-trimmed-jre-on-alpine-with-local-and-deploy-compose.md) | 2026-10-16 | Ship a jlink-trimmed JRE on Alpine, with separate local and deploy compose files | Accepted — local compose file superseded by ADR-0028; memory default superseded by ADR-0029 |
 | [ADR-0005](./0005-one-http-and-data-contract-for-every-endpoint.md) | 2026-10-16 | One HTTP and data contract for every endpoint | Accepted — soft delete superseded by ADR-0006; exception bases superseded by ADR-0014 |
 | [ADR-0006](./0006-disable-with-disabledat-and-delete-for-real.md) | 2026-10-16 | Disable with `disabledAt`; delete for real; soft delete only by exception | Accepted |
 | [ADR-0007](./0007-seed-local-data-with-factories-and-seeders-on-the-test-classpath.md) | 2026-10-16 | Seed local data with factories and seeders on the test classpath | Accepted |
@@ -103,3 +103,4 @@ needs migration, rework or monitoring.
 | [ADR-0026](./0026-sort-user-facing-names-with-a-portuguese-icu-collation-on-the-column.md) | 2026-10-17 | Sort user-facing names with a Portuguese ICU collation on the column | Accepted |
 | [ADR-0027](./0027-search-names-ignoring-accents-with-unaccent-and-trigram-indexes.md) | 2026-10-17 | Search names ignoring accents with unaccent and trigram indexes | Accepted |
 | [ADR-0028](./0028-one-command-runs-a-seeded-demo-stack-separate-from-the-production-image.md) | 2026-10-18 | One command runs a seeded demo stack, separate from the production image | Accepted |
+| [ADR-0029](./0029-give-the-api-1-gb-now-that-its-non-heap-memory-outgrew-512-mb.md) | 2026-10-18 | Give the API 1 GB now that its non-heap memory outgrew 512 MB | Accepted |

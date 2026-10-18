@@ -34,7 +34,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: ${API_MEMORY_LIMIT:-512M}
+          memory: ${API_MEMORY_LIMIT:-1024M}
     restart: unless-stopped
 
   postgres:

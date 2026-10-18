@@ -337,6 +337,35 @@ bash scripts/check-comments.sh
   - **demo**: roda o `docker compose up -d --build --wait` deste README, entra como o administrador da
     demonstração e espera `200` em `GET /me` e `GET /dashboard`.
 
+### Teste de carga e memória
+
+[`scripts/load-test/`](./scripts/load-test) mede quanta memória a **imagem de produção** usa sob
+carga real e se o limite do container aguenta. Só precisa do Docker e da demonstração no ar —
+de preferência com mais dados:
+
+```bash
+docker compose down -v
+SEED_SCALE=MEDIUM docker compose up -d --build --wait
+bash scripts/load-test/run.sh
+```
+
+O script constrói a imagem de produção, troca a API da demonstração por ela (com o mesmo banco), roda
+o [k6](https://k6.io) dentro do Docker — clientes vendo o cardápio, cotando e fazendo pedidos; equipe
+no quadro, avançando pedidos, no histórico e no dashboard; 200 usuários simultâneos por 6 minutos e
+300 no pico —, amostra a memória a cada 4 segundos e, no fim, devolve a API da demonstração. Para o
+teste, os limites de requisição são elevados.
+
+| Variável | Padrão | Para quê |
+|---|---|---|
+| `MEMORY` | `1024m` | limite de memória do container durante o teste |
+| `PRETOUCH` | `false` | `true` reserva e toca o heap inteiro desde o início: o **pior caso** de memória |
+| `STEADY` | `6m` | duração do patamar de carga |
+
+Ele imprime o pico de memória do container, o pico do heap e se o kernel matou o processo por falta
+de memória; os dados brutos (amostras, log do GC e resumo do k6) ficam em `target/load-test/`. No
+Windows, rode pelo Git Bash. A última medição e por que o limite é 1 GB estão na
+[ADR-0029](./docs/adr/0029-give-the-api-1-gb-now-that-its-non-heap-memory-outgrew-512-mb.md).
+
 ---
 
 ## Produção
@@ -369,7 +398,8 @@ docker compose -f compose.deploy.yaml up -d --build --wait
 
 - **CORS:** `FOODY_WEB_ALLOWEDORIGINS` lista as origens do front (padrão `http://localhost:5173`).
 - Banco sem porta publicada, sistema de arquivos só leitura, `no-new-privileges`, reinício automático,
-  limites de memória (`API_MEMORY_LIMIT`, 512 MB; o heap usa 50%) e logs em JSON (ECS).
+  limites de memória (`API_MEMORY_LIMIT`, 1 GB; o heap usa 50% — veja o
+  [teste de carga](#teste-de-carga-e-memória)) e logs em JSON (ECS).
 - A 8080 é a mesma da demonstração: rode `docker compose down` antes, ou mude `API_PORT`.
 - Para derrubar: `docker compose -f compose.deploy.yaml down`.
 
@@ -480,7 +510,8 @@ vazio usa o padrão. O [`.env.example`](./.env.example) lista todas.
 | `SEED_DEFAULT_PASSWORD` | `Foody#2026` | obrigatória | — | senha de todas as contas, menos o admin |
 | `SEED_SCALE` | `SMALL` | — | — | volume do seed (`SMALL`, `MEDIUM`, `LARGE`) |
 | `JWT_PRIVATE_KEY_FILE` / `JWT_PUBLIC_KEY_FILE` | — | — | `./.secrets/jwt-*.pem` | chaves que assinam os tokens |
-| `API_MEMORY_LIMIT` / `POSTGRES_MEMORY_LIMIT` | — | — | `512M` | limite de memória dos containers |
+| `API_MEMORY_LIMIT` | — | — | `1024M` | limite de memória do container da API (o heap usa 50%) |
+| `POSTGRES_MEMORY_LIMIT` | — | — | `512M` | limite de memória do container do PostgreSQL |
 | `FOODY_API_IMAGE` | — | — | `foody-api:latest` | nome da imagem gerada |
 
 Na demonstração as chaves são geradas num volume; no `test-run`, vêm de `.secrets/` (gere com o script);
