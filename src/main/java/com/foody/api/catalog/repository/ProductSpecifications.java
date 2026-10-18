@@ -6,7 +6,7 @@ import com.foody.api.catalog.entity.Product;
 import com.foody.api.shared.persistence.ActivatableSpecifications;
 import com.foody.api.shared.persistence.ActivationStatus;
 import com.foody.api.shared.persistence.PersistenceConstants;
-import com.foody.api.shared.util.LikeUtils;
+import com.foody.api.shared.util.TextSearchUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,12 +42,11 @@ public final class ProductSpecifications {
 	}
 
 	private static Optional<PredicateSpecification<Product>> searching(@Nullable String search) {
-		return LikeUtils.searchPattern(search).map(ProductSpecifications::nameLike);
+		return TextSearchUtils.searchTerm(search).map(ProductSpecifications::nameLike);
 	}
 
-	private static PredicateSpecification<Product> nameLike(String pattern) {
-		return (from, builder) -> builder.like(builder.lower(from.get(CatalogConstants.NAME_ATTRIBUTE)), pattern,
-				LikeUtils.ESCAPE);
+	private static PredicateSpecification<Product> nameLike(String term) {
+		return (from, builder) -> TextSearchUtils.matches(builder, from.get(CatalogConstants.NAME_ATTRIBUTE), term);
 	}
 
 }

@@ -10,9 +10,14 @@ import com.foody.api.user.entity.User;
 import com.foody.seed.user.UserFactory;
 import com.foody.testsupport.api.ApiIntegrationTest;
 import com.foody.testsupport.security.AccessTokens;
+import com.jayway.jsonpath.JsonPath;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +29,9 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 class ListUsersTest {
 
 	private static final String EMAIL_DOMAIN = "@foody.test";
+
+	private static final List<String> LIKE_WILDCARDS_AND_LOOKALIKES = List.of("%", "_", "\\", "％", "﹪", "＿", "＼", "﹨",
+			"∖");
 
 	@Autowired
 	private MockMvcTester mvc;
@@ -66,6 +74,30 @@ class ListUsersTest {
 	}
 
 	@Test
+	void usersSortByNameInPortugueseOrder() {
+		User admin = users.create(user -> user.changeRole(Role.ADMIN));
+		String marker = marker();
+		List<String> portugueseOrder = Stream.of("Álvaro", "Bruno", "Érica", "Fábio", "Ícaro", "Zeca")
+			.map(name -> marker + " " + name)
+			.toList();
+		List.of(4, 1, 5, 0, 3, 2).forEach(index -> users.create(portugueseOrder.get(index), uniqueEmail()));
+
+		MvcTestResult ascending = listSorted(admin, marker, "name,asc");
+		MvcTestResult descending = listSorted(admin, marker, "name,desc");
+
+		assertThat(ascending).hasStatus(HttpStatus.OK);
+		assertThat(ascending).bodyJson()
+			.extractingPath("$.data[*].name")
+			.asArray()
+			.containsExactlyElementsOf(portugueseOrder);
+		assertThat(descending).hasStatus(HttpStatus.OK);
+		assertThat(descending).bodyJson()
+			.extractingPath("$.data[*].name")
+			.asArray()
+			.containsExactlyElementsOf(portugueseOrder.reversed());
+	}
+
+	@Test
 	void listFiltersBySearchOnNameOrEmailIgnoringCase() {
 		User admin = users.create(user -> user.changeRole(Role.ADMIN));
 		String marker = marker();
@@ -84,6 +116,47 @@ class ListUsersTest {
 			.extractingPath("$.data[*].id")
 			.asArray()
 			.containsExactlyInAnyOrder(byName.getId().toString(), byEmail.getId().toString());
+	}
+
+	@Test
+	void userSearchIgnoresAccentsAndCase() {
+		User admin = users.create(user -> user.changeRole(Role.ADMIN));
+		String marker = marker();
+		User joao = users.create("João " + marker + " Silva", uniqueEmail());
+		User byEmail = users.create("Bruno Lima", "joao." + marker + EMAIL_DOMAIN);
+		users.create("Joana " + marker + " Silva", uniqueEmail());
+
+		MvcTestResult lowercase = listSearching(admin, "joao " + marker);
+		MvcTestResult capitals = listSearching(admin, ("joao " + marker).toUpperCase(Locale.ROOT));
+		MvcTestResult email = listSearching(admin, ("joão." + marker).toUpperCase(Locale.ROOT));
+
+		assertThat(List.of(lowercase, capitals, email))
+			.allSatisfy(result -> assertThat(result).hasStatus(HttpStatus.OK));
+		assertThat(lowercase).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(joao));
+		assertThat(capitals).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(joao));
+		assertThat(email).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(byEmail));
+	}
+
+	@Test
+	void searchStillEscapesLikeWildcards() throws UnsupportedEncodingException {
+		User admin = users.create(user -> user.changeRole(Role.ADMIN));
+		String marker = marker();
+		List<String> searches = IntStream.range(0, LIKE_WILDCARDS_AND_LOOKALIKES.size())
+			.mapToObj(index -> marker + index + " a" + LIKE_WILDCARDS_AND_LOOKALIKES.get(index) + "b")
+			.toList();
+		List<List<String>> expected = searches.stream()
+			.map(search -> List.of(idOf(users.create(search, uniqueEmail()))))
+			.toList();
+		IntStream.range(0, searches.size())
+			.forEach(index -> List.of(" axb", " ab")
+				.forEach(decoy -> users.create(marker + index + decoy, uniqueEmail())));
+
+		List<List<String>> found = new ArrayList<>();
+		for (String search : searches) {
+			found.add(JsonPath.read(listSearching(admin, search).getResponse().getContentAsString(), "$.data[*].id"));
+		}
+
+		assertThat(found).containsExactlyElementsOf(expected);
 	}
 
 	@Test
@@ -194,6 +267,27 @@ class ListUsersTest {
 
 		assertThat(result).hasStatus(HttpStatus.UNAUTHORIZED);
 		assertThat(result).bodyJson().extractingPath("$.code").isEqualTo(Messages.UNAUTHENTICATED.name());
+	}
+
+	private MvcTestResult listSearching(User caller, String search) {
+		return mvc.get()
+			.uri(UserConstants.ADMIN_USERS_PATH)
+			.param("search", search)
+			.header(HttpHeaders.AUTHORIZATION, tokens.bearer(caller))
+			.exchange();
+	}
+
+	private String idOf(User user) {
+		return user.getId().toString();
+	}
+
+	private MvcTestResult listSorted(User caller, String search, String sort) {
+		return mvc.get()
+			.uri(UserConstants.ADMIN_USERS_PATH)
+			.param("search", search)
+			.param("sort", sort)
+			.header(HttpHeaders.AUTHORIZATION, tokens.bearer(caller))
+			.exchange();
 	}
 
 	private String marker() {

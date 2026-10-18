@@ -256,6 +256,26 @@ class DashboardTest {
 	}
 
 	@Test
+	void topProductsBreakTiesInPortugueseOrder() {
+		User staff = staff();
+		User customer = users.create();
+		Product rings = product("Anéis de cebola", "10.00");
+		Product fries = product("Batata frita", "10.00");
+		Product acai = product("Açaí na tigela", "10.00");
+		Stream.of(rings, fries, acai)
+			.forEach(
+					product -> orders.create(customer, items(product, 1), local("2054-05-05T12:00"), delivered(staff)));
+		clock.fixAt(local("2054-05-05T20:00"));
+
+		MvcTestResult today = overview(staff, DashboardPeriod.TODAY);
+
+		assertThat(today).bodyJson()
+			.extractingPath("$.topProducts[*].name")
+			.asArray()
+			.containsExactly("Açaí na tigela", "Anéis de cebola", "Batata frita");
+	}
+
+	@Test
 	void ordersOverTimeFillsEmptyHourlyBucketsForToday() {
 		User staff = staff();
 		User customer = users.create();

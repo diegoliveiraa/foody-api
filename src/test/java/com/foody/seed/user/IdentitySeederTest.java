@@ -7,13 +7,19 @@ import com.foody.api.order.repository.OrderRepository;
 import com.foody.api.shared.security.Role;
 import com.foody.api.user.entity.User;
 import com.foody.api.user.repository.UserRepository;
+import com.foody.seed.SeedConstants;
 import com.foody.seed.SeedProperties;
 import com.foody.seed.SeedRunner;
 import com.foody.seed.SeedScale;
 import com.foody.testsupport.api.ApiIntegrationTest;
+import java.text.Collator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +41,19 @@ class IdentitySeederTest {
 			new IdentitySeedProperties.Account("customer.seed@foody.test"), DEFAULT_PASSWORD);
 
 	private static final long RANDOM_SEED = 42;
+
+	private static final Set<String> FIXED_EMAILS = Set.of(PROPERTIES.admin().email(), PROPERTIES.staff().email(),
+			PROPERTIES.customer().email());
+
+	private static final Set<String> HONORIFICS = Set.of("Sr.", "Sra.", "Srta.", "Dr.", "Dra.", "Jr.", "Neto", "Filho");
+
+	private static final Pattern DERIVED_EMAIL = Pattern.compile("^([a-z]+)\\.([a-z]+)\\.\\d+@(.+)$");
+
+	private static final int FIRST_NAME_GROUP = 1;
+
+	private static final int LAST_NAME_GROUP = 2;
+
+	private static final int DOMAIN_GROUP = 3;
 
 	@Autowired
 	private OrderRepository orderRepository;
@@ -91,6 +110,36 @@ class IdentitySeederTest {
 	}
 
 	@Test
+	void seededNamesHaveNoHonorifics() {
+		SeedScale scale = SeedScale.SMALL;
+
+		seeder.seed(scale);
+
+		assertThat(userRepository.findAll()).extracting(User::getName)
+			.isNotEmpty()
+			.allSatisfy(name -> assertThat(wordsOf(name)).hasSizeGreaterThanOrEqualTo(2)
+				.doesNotContainAnyElementsOf(HONORIFICS));
+	}
+
+	@Test
+	void seededEmailsAreDerivedFromTheName() {
+		SeedScale scale = SeedScale.SMALL;
+
+		seeder.seed(scale);
+
+		assertThat(userRepository.findAll()).filteredOn(user -> !FIXED_EMAILS.contains(user.getEmail()))
+			.hasSize(UserSeedConstants.EXTRA_STAFF_COUNT + scale.of(UserSeedConstants.CUSTOMER_BASE_COUNT))
+			.allSatisfy(user -> {
+				Matcher email = DERIVED_EMAIL.matcher(user.getEmail());
+				assertThat(email.matches()).as(user.getEmail()).isTrue();
+				assertThat(UserSeedConstants.EMAIL_DOMAINS).contains(email.group(DOMAIN_GROUP));
+				assertThat(splitsInto(user.getName(), email.group(FIRST_NAME_GROUP), email.group(LAST_NAME_GROUP)))
+					.as(user.getName() + " -> " + user.getEmail())
+					.isTrue();
+			});
+	}
+
+	@Test
 	void identitySeederScalesTheCustomers() {
 		SeedScale scale = SeedScale.MEDIUM;
 
@@ -129,6 +178,23 @@ class IdentitySeederTest {
 
 	private Map<Role, Long> countByRole() {
 		return userRepository.findAll().stream().collect(Collectors.groupingBy(User::getRole, Collectors.counting()));
+	}
+
+	private List<String> wordsOf(String name) {
+		return List.of(name.split(UserSeedConstants.NAME_SEPARATOR));
+	}
+
+	private boolean splitsInto(String name, String firstName, String lastName) {
+		List<String> words = wordsOf(name);
+		return IntStream.range(1, words.size())
+			.anyMatch(split -> samePrimaryLetters(words.subList(0, split), firstName)
+					&& samePrimaryLetters(words.subList(split, words.size()), lastName));
+	}
+
+	private boolean samePrimaryLetters(List<String> words, String normalized) {
+		Collator collator = Collator.getInstance(SeedConstants.LOCALE);
+		collator.setStrength(Collator.PRIMARY);
+		return collator.compare(String.join("", words), normalized) == 0;
 	}
 
 }

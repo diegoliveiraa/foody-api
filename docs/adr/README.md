@@ -100,3 +100,5 @@ needs migration, rework or monitoring.
 | [ADR-0023](./0023-query-another-feature-through-an-interface-it-implements.md) | 2026-10-17 | Query another feature through an interface it implements | Accepted |
 | [ADR-0024](./0024-drive-the-order-lifecycle-through-one-policy-per-side-endpoints-and-a-single-cancellation-request.md) | 2026-10-17 | Drive the order lifecycle through one policy, per-side endpoints and a single cancellation request | Accepted |
 | [ADR-0025](./0025-compute-dashboard-kpis-on-demand-in-the-restaurants-time-zone.md) | 2026-10-17 | Compute dashboard KPIs on demand in the restaurant's time zone | Accepted |
+| [ADR-0026](./0026-sort-user-facing-names-with-a-portuguese-icu-collation-on-the-column.md) | 2026-10-17 | Sort user-facing names with a Portuguese ICU collation on the column | Accepted |
+| [ADR-0027](./0027-search-names-ignoring-accents-with-unaccent-and-trigram-indexes.md) | 2026-10-17 | Search names ignoring accents with unaccent and trigram indexes | Accepted |

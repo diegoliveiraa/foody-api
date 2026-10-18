@@ -1,6 +1,7 @@
 package com.foody.api.catalog.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.foody.api.catalog.CatalogConstants;
 import com.foody.api.catalog.entity.Category;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,6 +42,8 @@ class ManageCategoriesTest {
 	private static final String DISABLE_PATH = CatalogConstants.CATEGORIES_PATH + RouteConstants.DISABLE_PATH;
 
 	private static final String ENABLE_PATH = CatalogConstants.CATEGORIES_PATH + RouteConstants.ENABLE_PATH;
+
+	private static final String CATEGORY_NAME_INDEX = "categories_name_lower_key";
 
 	private static final String CATEGORY_REQUEST = """
 			{ "name": "%s", "displayOrder": %d }
@@ -106,6 +110,41 @@ class ManageCategoriesTest {
 			.asArray()
 			.containsExactly(ActivationStatus.DISABLED.name());
 		assertThat(result).bodyJson().extractingPath(fieldOf(desserts, "disabledAt")).asArray().doesNotContainNull();
+	}
+
+	@Test
+	void categoriesListInPortugueseOrderWhenOrderTies() {
+		User staff = staff();
+		String marker = marker();
+		List<String> portugueseOrder = Stream.of("Açaís", "Árabes", "Bebidas", "Lanches")
+			.map(name -> marker + " " + name)
+			.toList();
+		List.of(3, 1, 2, 0).forEach(index -> categories.create(portugueseOrder.get(index), 500));
+
+		MvcTestResult result = mvc.get()
+			.uri(CatalogConstants.CATEGORIES_PATH)
+			.header(HttpHeaders.AUTHORIZATION, tokens.bearer(staff))
+			.exchange();
+
+		assertThat(result).hasStatus(HttpStatus.OK);
+		assertThat(result).bodyJson()
+			.extractingPath("$[*].name")
+			.asArray()
+			.filteredOn(name -> String.valueOf(name).startsWith(marker))
+			.containsExactlyElementsOf(portugueseOrder);
+	}
+
+	@Test
+	void categoryNamesStayUniqueIgnoringCase() {
+		String name = marker() + " Água e sucos";
+		categories.create(name, 10);
+
+		Throwable thrown = catchThrowable(() -> categories.create(name.toUpperCase(Locale.ROOT), 20));
+
+		assertThat(thrown).isInstanceOf(DataIntegrityViolationException.class)
+			.hasMessageContaining(CATEGORY_NAME_INDEX);
+		assertThat(categoryRepository.findAll()).filteredOn(category -> category.getName().equalsIgnoreCase(name))
+			.hasSize(1);
 	}
 
 	@Test

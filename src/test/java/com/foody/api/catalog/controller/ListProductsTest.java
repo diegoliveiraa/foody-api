@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -83,6 +84,25 @@ class ListProductsTest {
 	}
 
 	@Test
+	void productsSortByNameInPortugueseOrder() {
+		User staff = staff();
+		String marker = marker();
+		Category category = categories.create();
+		List<String> portugueseOrder = Stream.of("Açaí na tigela", "Água com gás", "Anéis de cebola", "Batata frita")
+			.map(name -> marker + " " + name)
+			.toList();
+		List.of(2, 3, 0, 1).forEach(index -> products.create(category, portugueseOrder.get(index), PRICE));
+
+		MvcTestResult result = list(staff, "search", marker);
+
+		assertThat(result).hasStatus(HttpStatus.OK);
+		assertThat(result).bodyJson()
+			.extractingPath("$.data[*].name")
+			.asArray()
+			.containsExactlyElementsOf(portugueseOrder);
+	}
+
+	@Test
 	void productListFiltersByCategoryStatusAndSearch() {
 		User staff = staff();
 		String marker = marker();
@@ -107,6 +127,22 @@ class ListProductsTest {
 		assertThat(byStatus).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(grape));
 		assertThat(byStatus).bodyJson().extractingPath("$.data[0].status").isEqualTo(ActivationStatus.DISABLED.name());
 		assertThat(byStatus).bodyJson().extractingPath("$.data[0].disabledAt").asString().isNotBlank();
+	}
+
+	@Test
+	void productSearchIgnoresAccents() {
+		User staff = staff();
+		String marker = marker();
+		Category category = categories.create();
+		Product acai = products.create(category, marker + " Açaí na tigela", PRICE);
+		products.create(category, marker + " Acarajé", PRICE);
+
+		MvcTestResult plain = list(staff, "search", marker + " acai");
+		MvcTestResult capitals = list(staff, "search", (marker + " ACAI").toUpperCase(Locale.ROOT));
+
+		assertThat(plain).hasStatus(HttpStatus.OK);
+		assertThat(plain).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(acai));
+		assertThat(capitals).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(acai));
 	}
 
 	@Test

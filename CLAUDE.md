@@ -256,6 +256,10 @@ ADR-0005:
 - **The schema changes only through a new migration**,
   `src/main/resources/db/migration/V<n>__<description>.sql`. An applied migration is never
   edited — the fix is another migration. `ddl-auto` is `validate`, never anything else.
+- **A text column users see sorted — a name — uses the Portuguese ICU collation**, declared
+  `COLLATE "pt-BR-x-icu"` on the column in its migration (ADR-0026).
+- **A typed text search compares `f_unaccent(lower(column))` through `TextSearchUtils.matches`** and
+  has a trigram GIN index on that expression (ADR-0027).
 - **Entities never leave the service.** Controllers receive and return DTO `record`s from the
   domain's `dto` package (R9).
 - **Transactions are declared on service methods** — `@Transactional`, with `readOnly = true` for

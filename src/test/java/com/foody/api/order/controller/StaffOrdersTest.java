@@ -198,6 +198,23 @@ class StaffOrdersTest {
 	}
 
 	@Test
+	void orderHistorySearchIgnoresAccents() {
+		User staff = staff();
+		String marker = marker();
+		User joao = customer(marker + " João Conceição");
+		User joana = customer(marker + " Joana Souza");
+		Order joaosOrder = orders.create(joao, Instant.parse("2026-09-03T15:00:00Z"));
+		orders.create(joana, Instant.parse("2026-09-03T16:00:00Z"));
+
+		MvcTestResult byFirstName = list(staff, "search", marker + " joao");
+		MvcTestResult byLastName = list(staff, "search", (marker + " joao conceicao").toUpperCase(Locale.ROOT));
+
+		assertThat(byFirstName).hasStatus(HttpStatus.OK);
+		assertThat(byFirstName).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(joaosOrder));
+		assertThat(byLastName).bodyJson().extractingPath("$.data[*].id").asArray().containsExactly(idOf(joaosOrder));
+	}
+
+	@Test
 	void staffListRejectsUnknownSortProperty() {
 		User staff = staff();
 
