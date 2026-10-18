@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine-3.24 AS build
+FROM eclipse-temurin:24-jdk-alpine-3.22 AS build
 RUN apk add --no-cache binutils
 WORKDIR /workspace
 
