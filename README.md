@@ -4,7 +4,8 @@ API do **Foody**, um sistema de delivery para um restaurante: o cliente monta a 
 e acompanha cada etapa; a equipe toca os pedidos num quadro, decide pedidos de cancelamento, cuida do
 cardápio e acompanha um dashboard; o administrador gerencia os usuários.
 
-Este repositório é o **backend**. A interface web fica no repositório irmão **`foody-app`**. Cada um
+Este repositório é o **backend**. A interface web fica no repositório irmão
+**[`foody-app`](https://github.com/diegoliveiraa/foody-app)**. Cada um
 roda sozinho — esta API se explora pelo Swagger UI ou por `curl` —, mas a experiência completa é com
 os dois no ar: suba esta API primeiro e depois siga o README do `foody-app`.
 
@@ -265,8 +266,9 @@ O `/menu` responde `403`: o cardápio é uma tela do cliente, e cada endpoint co
 ### 4. Pela interface
 
 O roteiro visual — vitrine, sacola, acompanhamento ao vivo, quadro da equipe, dashboard com gráficos e
-gestão de usuários — está no README do **`foody-app`**. Com esta API no ar, ele sobe com o mesmo
-`docker compose up -d --build --wait` e abre em <http://localhost:5173>, com as mesmas contas.
+gestão de usuários — está no README do
+**[`foody-app`](https://github.com/diegoliveiraa/foody-app)**. Com esta API no ar, ele sobe com o
+mesmo `docker compose up -d --build --wait` e abre em <http://localhost:5173>, com as mesmas contas.
 
 ---
 
